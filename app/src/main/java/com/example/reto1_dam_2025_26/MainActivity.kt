@@ -37,8 +37,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.reto1_dam_2025_26.interfaces.AccesoAplicacion
-import com.example.reto1_dam_2025_26.interfaces.ConfirmacionContrasena
+import com.example.reto1_dam_2025_26.interfaces.CatalogoInterface
+import com.example.reto1_dam_2025_26.interfaces.CestaInterface
+import com.example.reto1_dam_2025_26.interfaces.InicioInterface
+import com.example.reto1_dam_2025_26.interfaces.LogginInterface
+import com.example.reto1_dam_2025_26.interfaces.PedidoInterface
 import com.example.reto1_dam_2025_26.ui.theme.Reto1_DAM_202526Theme
 
 class MainActivity : ComponentActivity() {
@@ -63,7 +66,7 @@ fun gestorVentanas() {
 
     // Observar la ruta actual para cambiar el título dinámicamente
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route ?: "acceso"
+    val currentRoute = navBackStackEntry?.destination?.route ?: "inicio"
 
     // estado de login para poder acceder a la barra inferior
     var isLoggedIn = remember { mutableStateOf(false) }
@@ -85,8 +88,11 @@ fun gestorVentanas() {
                 title = {
                     Text(
                         when (currentRoute) {
-                            "acceso" -> "Mercado de la Ribera / Acceso"
-                            "confirmacion" -> "Mercado de la Ribera"
+                            "inicio" -> "Mercado de la Ribera / Inicio"
+                            "catalogo" -> "Mercado de la Ribera / Catalogo"
+                            "loggin" -> "Mercado de la Ribera / Loggin"
+                            "cesta" -> "Mercado de la Ribera / Cesta"
+                            "pedidos" -> "Mercado de la Ribera / Pedidos"
                             else -> "App"
                         },
                         style = MaterialTheme.typography.titleMedium
@@ -114,19 +120,26 @@ fun gestorVentanas() {
         ) {
             // definición de rutas de pantallas
             NavHost(navController = navController,
-                startDestination = "acceso",
+                startDestination = "inicio",
                 modifier = Modifier
                     .padding(innerPadding) // el contenido no queda tapado por las barras
                     .padding(horizontal = 16.dp, vertical = 30.dp)
             ) {
-                composable("acceso") {
-                    AccesoAplicacion(navController, isLoggedIn)
+                composable("inicio") {
+                    InicioInterface(navController)
                 }
-
-                composable("confirmacion") {
-                    ConfirmacionContrasena(navController)
+                composable("catalogo") {
+                    CatalogoInterface(navController)
                 }
-
+                composable("loggin") {
+                    LogginInterface(navController)
+                }
+                composable("cesta") {
+                    CestaInterface(navController)
+                }
+                composable("pedidos") {
+                    PedidoInterface(navController)
+                }
             }
         }
     }
@@ -140,20 +153,19 @@ fun BottomNavBar(navController: NavHostController, isLoggedIn: Boolean) {
 
     NavigationBar (containerColor = MaterialTheme.colorScheme.secondary){
 
+        // Inicio
         NavigationBarItem(
-            icon = { Icon(Icons.Default.Add, contentDescription = "App") },
-            selected = currentRoute == "app",
+            icon = { Icon(Icons.Default.Add, contentDescription = "Inicio") },
+            selected = currentRoute == "inicio",
             onClick = {
-                // solo se accede si el usuario se ha loggeado
-                if (isLoggedIn) {
-                    navController.navigate("app") {
+                    navController.navigate("inicio") {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
-                }
+
             },
-            label = { Text("App") },
+            label = { Text("Inicio") },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.onSecondary,
                 selectedTextColor = MaterialTheme.colorScheme.onSecondary,
@@ -163,19 +175,87 @@ fun BottomNavBar(navController: NavHostController, isLoggedIn: Boolean) {
             )
         )
 
+        // Catálogo
         NavigationBarItem(
-            icon = { Icon(Icons.Default.List, contentDescription = "Lista") },
-            selected = currentRoute == "lista",
+            icon = { Icon(Icons.Default.Add, contentDescription = "Catalogo") },
+            selected = currentRoute == "catalogo",
+            onClick = {
+                navController.navigate("catalogo") {
+                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+
+            },
+            label = { Text("Catalogo") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MaterialTheme.colorScheme.onSecondary,
+                selectedTextColor = MaterialTheme.colorScheme.onSecondary,
+                unselectedIconColor = MaterialTheme.colorScheme.primary,
+                unselectedTextColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = Color.Transparent
+            )
+        )
+
+        // Loggin
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.Add, contentDescription = "Loggin") },
+            selected = currentRoute == "loggin",
+            onClick = {
+                navController.navigate("loggin") {
+                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+
+            },
+            label = { Text("Loggin") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MaterialTheme.colorScheme.onSecondary,
+                selectedTextColor = MaterialTheme.colorScheme.onSecondary,
+                unselectedIconColor = MaterialTheme.colorScheme.primary,
+                unselectedTextColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = Color.Transparent
+            )
+        )
+
+        // Cesta
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.List, contentDescription = "Cesta") },
+            selected = currentRoute == "cesta",
             onClick = {
                 if (isLoggedIn) {
-                    navController.navigate("lista") {
+                    navController.navigate("cesta") {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
                 }
             },
-            label = { Text("Lista apps") },
+            label = { Text("Cesta") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MaterialTheme.colorScheme.onSecondary,
+                selectedTextColor = MaterialTheme.colorScheme.onSecondary,
+                unselectedIconColor = MaterialTheme.colorScheme.primary,
+                unselectedTextColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = Color.Transparent
+            )
+        )
+
+        // Pedidos
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.List, contentDescription = "Pedidos") },
+            selected = currentRoute == "pedidos",
+            onClick = {
+                if (isLoggedIn) {
+                    navController.navigate("pedidos") {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            },
+            label = { Text("Pedidos") },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.onSecondary,
                 selectedTextColor = MaterialTheme.colorScheme.onSecondary,
