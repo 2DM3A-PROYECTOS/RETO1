@@ -1,4 +1,6 @@
 package com.example.reto1_dam_2025_26.viewmodels
 
-class PedidoViewModel {
+import androidx.lifecycle.ViewModel
+
+class PedidoViewModel: ViewModel() {
 }

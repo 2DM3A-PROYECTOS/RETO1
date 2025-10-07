@@ -27,9 +27,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,7 +47,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.reto1_dam_2025_26.interfaces.CatalogoInterface
 import com.example.reto1_dam_2025_26.interfaces.CestaInterface
 import com.example.reto1_dam_2025_26.interfaces.InicioInterface
-import com.example.reto1_dam_2025_26.interfaces.LogginInterface
 import com.example.reto1_dam_2025_26.interfaces.PedidoInterface
 import com.example.reto1_dam_2025_26.objetos.Pedido
 import com.example.reto1_dam_2025_26.objetos.Producto
@@ -64,7 +63,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Reto1_DAM_202526Theme (dynamicColor = false){
                 Surface {
-                    gestorVentanas()
+                    windowManager()
                 }
             }
         }
@@ -80,28 +79,28 @@ fun AppPreview() {
     Reto1_DAM_202526Theme(dynamicColor = false) {
         Surface(
         ) {
-            gestorVentanas()
+            windowManager()
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun gestorVentanas() {
+fun windowManager() {
     // NavController para navegar entre las páginas
     val navController = rememberNavController()
-/*
+
     // Objetos
     var usuario by remember { mutableStateOf(Usuario("", "")) }
     var producto by remember { mutableStateOf(Producto("", "", 0.0, 21)) }
-    var productos: List<Producto>
-    //var pedido by remember { mutableStateOf(Pedido(usuario, productos)) }
+    var productos = remember { mutableStateListOf<Producto>() }
+    var pedido by remember { mutableStateOf(Pedido(usuario, productos)) }
 
     // View model de los objetos
     val usuarioViewModel: UsuarioViewModel = viewModel()
     val productoViewModel: ProductoViewModel = viewModel()
     val pedidoViewModel: PedidoViewModel = viewModel()
-*/
+
     // Observar la ruta actual para cambiar el título dinámicamente
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: "inicio"
@@ -158,16 +157,12 @@ fun gestorVentanas() {
                 startDestination = "inicio",
                 modifier = Modifier
                     .padding(innerPadding) // el contenido no queda tapado por las barras
-                    .padding(horizontal = 16.dp, vertical = 30.dp)
             ) {
                 composable("inicio") {
                     InicioInterface(navController)
                 }
                 composable("catalogo") {
                     CatalogoInterface(navController)
-                }
-                composable("loggin") {
-                    LogginInterface(navController)
                 }
                 composable("cesta") {
                     CestaInterface(navController)
