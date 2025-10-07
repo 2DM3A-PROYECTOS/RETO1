@@ -11,8 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,15 +28,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,7 +52,13 @@ import com.example.reto1_dam_2025_26.interfaces.CestaInterface
 import com.example.reto1_dam_2025_26.interfaces.InicioInterface
 import com.example.reto1_dam_2025_26.interfaces.LogginInterface
 import com.example.reto1_dam_2025_26.interfaces.PedidoInterface
+import com.example.reto1_dam_2025_26.objetos.Pedido
+import com.example.reto1_dam_2025_26.objetos.Producto
+import com.example.reto1_dam_2025_26.objetos.Usuario
 import com.example.reto1_dam_2025_26.ui.theme.Reto1_DAM_202526Theme
+import com.example.reto1_dam_2025_26.viewmodels.PedidoViewModel
+import com.example.reto1_dam_2025_26.viewmodels.ProductoViewModel
+import com.example.reto1_dam_2025_26.viewmodels.UsuarioViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,11 +74,36 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Vista previa de la aplicación en el editor de diseño.
+ */
+@Preview
+@Composable
+fun AppPreview() {
+    Reto1_DAM_202526Theme(dynamicColor = false) {
+        Surface(
+        ) {
+            gestorVentanas()
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun gestorVentanas() {
-
+    // NavController para navegar entre las páginas
     val navController = rememberNavController()
+
+    // Objetos
+    var usuario by remember { mutableStateOf(Usuario("", "")) }
+    var producto by remember { mutableStateOf(Producto("", "", 0.0, 21)) }
+    //var productos: List<Producto>
+    //var pedido by remember { mutableStateOf(Pedido(usuario, productos)) }
+
+    // View model de los objetos
+    val usuarioViewModel: UsuarioViewModel = viewModel()
+    val productoViewModel: ProductoViewModel = viewModel()
+    val pedidoViewModel: PedidoViewModel = viewModel()
 
     // Observar la ruta actual para cambiar el título dinámicamente
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -76,8 +117,28 @@ fun gestorVentanas() {
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                modifier = if (isLandscape) Modifier.height(70.dp) else Modifier,
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+                title = {
+                    Text(
+                        "Mercado de la Ribera",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
+                actions = {
+                    Button(onClick = { /* Acción Log in */ }) {
+                        Text("Log in", color = MaterialTheme.colorScheme.primary)
+                    }
+                }
+            )
+        },
 
-        // barra superior
+        /*
         topBar = {
             TopAppBar(
                 modifier = if (isLandscape) Modifier.height(70.dp) else Modifier,
@@ -99,7 +160,7 @@ fun gestorVentanas() {
                     )
                 },
             )
-        },
+        },*/
 
         // barra inferior
         bottomBar = {
@@ -155,7 +216,7 @@ fun BottomNavBar(navController: NavHostController, isLoggedIn: Boolean) {
 
         // Inicio
         NavigationBarItem(
-            icon = { Icon(Icons.Default.Add, contentDescription = "Inicio") },
+            icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
             selected = currentRoute == "inicio",
             onClick = {
                     navController.navigate("inicio") {
@@ -177,7 +238,7 @@ fun BottomNavBar(navController: NavHostController, isLoggedIn: Boolean) {
 
         // Catálogo
         NavigationBarItem(
-            icon = { Icon(Icons.Default.Add, contentDescription = "Catalogo") },
+            icon = { Icon(Icons.Default.Menu, contentDescription = "Catalogo") },
             selected = currentRoute == "catalogo",
             onClick = {
                 navController.navigate("catalogo") {
@@ -197,31 +258,9 @@ fun BottomNavBar(navController: NavHostController, isLoggedIn: Boolean) {
             )
         )
 
-        // Loggin
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Add, contentDescription = "Loggin") },
-            selected = currentRoute == "loggin",
-            onClick = {
-                navController.navigate("loggin") {
-                    popUpTo(navController.graph.startDestinationId) { saveState = true }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-
-            },
-            label = { Text("Loggin") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MaterialTheme.colorScheme.onSecondary,
-                selectedTextColor = MaterialTheme.colorScheme.onSecondary,
-                unselectedIconColor = MaterialTheme.colorScheme.primary,
-                unselectedTextColor = MaterialTheme.colorScheme.primary,
-                indicatorColor = Color.Transparent
-            )
-        )
-
         // Cesta
         NavigationBarItem(
-            icon = { Icon(Icons.Default.List, contentDescription = "Cesta") },
+            icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Cesta") },
             selected = currentRoute == "cesta",
             onClick = {
                 if (isLoggedIn) {
@@ -244,7 +283,7 @@ fun BottomNavBar(navController: NavHostController, isLoggedIn: Boolean) {
 
         // Pedidos
         NavigationBarItem(
-            icon = { Icon(Icons.Default.List, contentDescription = "Pedidos") },
+            icon = { Icon(Icons.Default.Search, contentDescription = "Pedidos") },
             selected = currentRoute == "pedidos",
             onClick = {
                 if (isLoggedIn) {
