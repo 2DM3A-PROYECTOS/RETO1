@@ -10,9 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -32,7 +30,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -93,18 +90,18 @@ fun AppPreview() {
 fun gestorVentanas() {
     // NavController para navegar entre las páginas
     val navController = rememberNavController()
-
+/*
     // Objetos
     var usuario by remember { mutableStateOf(Usuario("", "")) }
     var producto by remember { mutableStateOf(Producto("", "", 0.0, 21)) }
-    //var productos: List<Producto>
+    var productos: List<Producto>
     //var pedido by remember { mutableStateOf(Pedido(usuario, productos)) }
 
     // View model de los objetos
     val usuarioViewModel: UsuarioViewModel = viewModel()
     val productoViewModel: ProductoViewModel = viewModel()
     val pedidoViewModel: PedidoViewModel = viewModel()
-
+*/
     // Observar la ruta actual para cambiar el título dinámicamente
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: "inicio"
@@ -117,6 +114,7 @@ fun gestorVentanas() {
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     Scaffold(
+
         topBar = {
             TopAppBar(
                 modifier = if (isLandscape) Modifier.height(70.dp) else Modifier,
@@ -137,30 +135,6 @@ fun gestorVentanas() {
                 }
             )
         },
-
-        /*
-        topBar = {
-            TopAppBar(
-                modifier = if (isLandscape) Modifier.height(70.dp) else Modifier,
-                colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-                title = {
-                    Text(
-                        when (currentRoute) {
-                            "inicio" -> "Mercado de la Ribera / Inicio"
-                            "catalogo" -> "Mercado de la Ribera / Catalogo"
-                            "loggin" -> "Mercado de la Ribera / Loggin"
-                            "cesta" -> "Mercado de la Ribera / Cesta"
-                            "pedidos" -> "Mercado de la Ribera / Pedidos"
-                            else -> "App"
-                        },
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                },
-            )
-        },*/
 
         // barra inferior
         bottomBar = {
