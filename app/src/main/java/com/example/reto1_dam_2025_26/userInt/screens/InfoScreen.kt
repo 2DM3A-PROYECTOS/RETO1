@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -35,8 +36,10 @@ fun InfoScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
         ) {
             item {
-                Column(modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.mercado),
                         contentDescription = "Mercado",
@@ -47,7 +50,10 @@ fun InfoScreen(navController: NavController) {
             }
 
             item {
-                LazyRow {
+                LazyRow (
+                    verticalAlignment = Alignment.CenterVertically,
+                    //modifier = Modifier.padding(16.dp)
+                ){
                     item {
                         Icon(
                             imageVector = Icons.Default.Call,
@@ -65,7 +71,10 @@ fun InfoScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                LazyRow {
+                LazyRow (
+                    verticalAlignment = Alignment.CenterVertically,
+                    //modifier = Modifier.padding(16.dp)
+                ){
                     item {
                         Icon(
                             imageVector = Icons.Default.Email,
@@ -81,7 +90,10 @@ fun InfoScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                LazyRow {
+                LazyRow (
+                    verticalAlignment = Alignment.CenterVertically,
+                    //modifier = Modifier.padding(16.dp)
+                ){
                     item {
                         Icon(
                             imageVector = Icons.Default.Home,
