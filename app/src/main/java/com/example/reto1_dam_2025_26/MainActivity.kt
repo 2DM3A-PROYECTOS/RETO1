@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Surface
 import com.example.reto1_dam_2025_26.ui.theme.Reto1_DAM_202526Theme
 import com.example.reto1_dam_2025_26.userInt.components.GestorVentanas
+import com.example.reto1_dam_2025_26.userInt.screens.LoginScreen
 
 /**
  * Inicia la aplicación con la ventana de login

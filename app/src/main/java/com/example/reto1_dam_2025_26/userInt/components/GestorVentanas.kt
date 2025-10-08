@@ -27,13 +27,13 @@ import com.example.reto1_dam_2025_26.userInt.screens.ShoppingCartScreen
 @Composable
 fun GestorVentanas() {
     var user by remember { mutableStateOf(User("", "")) }
-    var product by remember { mutableStateOf(Product("", "", 0.0, 21)) }
+    var product by remember { mutableStateOf(Product("", "", "",0.0, 21)) }
 
     val userViewModel: UserViewModel = viewModel()
     val productViewModel: ProductViewModel = viewModel()
     val orderViewModel: OrderViewModel = viewModel()
 
-    val isLoggedIn = remember { mutableStateOf(false) }
+    val isLoggedIn = remember { mutableStateOf(true) }
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -66,7 +66,7 @@ fun GestorVentanas() {
                         "info" -> "Info"
                         "productos" -> "Productos"
                         "cesta" -> "Cesta"
-                        "pedidos" -> "Pedidos"
+                        "comprar" -> "Comprar"
                         else -> ""
                     }
                     if (actionText.isNotEmpty()) {
@@ -94,7 +94,7 @@ fun GestorVentanas() {
                 composable("info") { InfoScreen(navController) }
                 composable("productos") { ProductsScreen(navController) }
                 composable("cesta") { ShoppingCartScreen(navController) }
-                composable("pedidos") { OrderScreen(navController) }
+                composable("comprar") { OrderScreen(navController) }
             }
         }
     }
