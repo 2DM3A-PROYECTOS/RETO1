@@ -1,6 +1,5 @@
 package com.example.reto1_dam_2025_26.userInt.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +15,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Muestra la pantalla de registro permitiendo al usuario:
+ * - acceder a su cuenta
+ * - crear una cuenta nueva
+ * - acceder a la aplicación de forma anónima
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen() {
