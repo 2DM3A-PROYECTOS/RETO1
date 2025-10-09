@@ -2,6 +2,7 @@
 
 package com.example.reto1_dam_2025_26.userInt.screens
 
+import android.content.Context
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.reto1_dam_2025_26.db_consult.loginQuery
 
 @Composable
 fun AuthScreen() {
@@ -80,6 +82,8 @@ fun LoginCard(onRegisterClick: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var isSuccess by remember { mutableStateOf(false) }
+    val context: Context
 
     Surface(
         modifier = Modifier
@@ -169,7 +173,11 @@ fun LoginCard(onRegisterClick: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { /* TODO */ },
+                onClick = {
+                    loginQuery(email, password) { result ->
+                        isSuccess = result
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -183,6 +191,11 @@ fun LoginCard(onRegisterClick: () -> Unit) {
 
             TextButton(onClick = onRegisterClick) {
                 Text("Crear la cuenta", color = Color.White)
+            }
+
+            // Just for try, remove it for next time
+            if (isSuccess) {
+                Text("Login successful!", color = Color.Green)
             }
         }
     }
