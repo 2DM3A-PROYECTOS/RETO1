@@ -8,6 +8,7 @@ import androidx.compose.material3.Surface
 import com.example.reto1_dam_2025_26.ui.theme.Reto1_DAM_202526Theme
 import com.example.reto1_dam_2025_26.userInt.components.GestorVentanas
 import com.example.reto1_dam_2025_26.userInt.screens.AuthScreen
+import com.example.reto1_dam_2025_26.userInt.screens.Es_Una_Prueba
 
 /**
  * Inicia la aplicación con la ventana de login
@@ -19,7 +20,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             Reto1_DAM_202526Theme(dynamicColor = false) {
                 Surface {
-                    AuthScreen()
+                    Es_Una_Prueba()
+                    //AuthScreen()
                     //GestorVentanas()
                 }
             }
