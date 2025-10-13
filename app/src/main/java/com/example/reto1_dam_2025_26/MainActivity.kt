@@ -22,9 +22,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             Reto1_DAM_202526Theme(dynamicColor = false) {
                 Surface {
-                    Es_Una_Prueba()
+                    //Es_Una_Prueba()
                     //AuthScreen()
-                    //GestorVentanas()
+                    GestorVentanas()
                 }
             }
         }
