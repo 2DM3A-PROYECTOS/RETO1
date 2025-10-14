@@ -90,7 +90,7 @@ private fun InfoRow(
 
             imageVector = icon,
             contentDescription = null,
-            tint = if (darkTheme) Blanco else RojoMercado
+            tint = if (darkTheme) Blanco else RojoMercado // COLOR DE LOS ICONOS
         )
         Spacer(Modifier.width(12.dp))
         Text(
