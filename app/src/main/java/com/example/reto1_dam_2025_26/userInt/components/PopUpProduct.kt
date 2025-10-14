@@ -24,28 +24,30 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.reto1_dam_2025_26.R
+import com.example.reto1_dam_2025_26.userInt.screens.Product
 
 @Composable
 fun ProductPopup(
-    isVisible: Boolean,
-    onDismiss: () -> Unit,
-    onAddToCart: () -> Unit,
-    onBuyNow: () -> Unit,
-    onGoToCart: () -> Unit
+    isVisible: Boolean, //  Controla si el popup se ve o
+    product: Product? = null, // el producto selecionado
+    onDismiss: () -> Unit, //  Acción al cerrar el popup (normalmente ocultarlo)
+    onAddToCart: () -> Unit, //  Acción al pulsar "Añadir a carrito"
+    onBuyNow: () -> Unit,  //  Acción al pulsar "Comprar ahora"
+    onGoToCart: () -> Unit //  Acción al pulsar "Ir al carrito"
 ) {
     AnimatedVisibility(
-        visible = isVisible,
-        enter = fadeIn(),
-        exit = fadeOut()
+        visible = isVisible, //  Solo se muestra si isVisible = true
+        enter = fadeIn(), //  Animación de aparición
+        exit = fadeOut() //  Animación de desaparición
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.5f))
+                .background(Color.Black.copy(alpha = 0.5f))  //  Fondo oscuro semitransparente
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            // Сам popup
+            // El cuadro del popup (tarjeta principal)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -61,9 +63,10 @@ fun ProductPopup(
                             .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        //Imagen del producto
                         Image(
-                            painter = painterResource(id = R.drawable.cattt),
-                            contentDescription = "Product image",
+                            painter = painterResource(id = product?.imageRes?:R.drawable.cattt),
+                            contentDescription = product?.name?: "Imagen del producto",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .height(200.dp)
@@ -72,9 +75,9 @@ fun ProductPopup(
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
-
+                        //Nombre del producto
                         Text(
-                            text = "Un gatito guapo",
+                            text = product?.name ?:"Nombre no disponible",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -82,18 +85,18 @@ fun ProductPopup(
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
-
+                        //Descripción genérica
                         Text(
-                            text = "Es un gatito muy bonito y hermoso, toda la gente quiere tenerlo en sus casas.",
+                            text =  "Producto de excelente calidad, disponible en nuestra tienda.",
                             fontSize = 16.sp,
                             color = Color.White.copy(alpha = 0.9f),
                             textAlign = TextAlign.Center
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
-
+                        //Precio del producto
                         Text(
-                            text = "1 000 000 $",
+                            text = product?.price ?:"-",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White
@@ -102,7 +105,8 @@ fun ProductPopup(
                         Spacer(modifier = Modifier.height(80.dp)) // место для кнопок
                     }
 
-                    // ActionButtons всегда снизу
+                    // ActionButtons siempre abajo
+                    //Los botones (añadir, comprar, ir al carrito)
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
@@ -116,6 +120,7 @@ fun ProductPopup(
                     }
                 }
             }
+            //  Botón de cerrar (la “X”)
             IconButton(
                 onClick = onDismiss,
                 modifier = Modifier
