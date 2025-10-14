@@ -31,7 +31,7 @@ fun BottomNavBar(
             NavItem("info", Icons.Default.Info, "Info"),
             NavItem("productos", Icons.Default.Menu, "Productos"),
             NavItem("cesta", Icons.Default.ShoppingCart, "Cesta", requiresLogin = true),
-            NavItem("pedidos", Icons.Default.Search, "Pedidos", requiresLogin = true)
+            NavItem("compra", Icons.Default.Search, "Compra", requiresLogin = true)
         )
 
         navItems.forEach { item ->

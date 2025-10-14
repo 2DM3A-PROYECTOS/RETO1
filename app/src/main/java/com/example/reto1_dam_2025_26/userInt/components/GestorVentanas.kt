@@ -66,7 +66,7 @@ fun GestorVentanas() {
                         "info" -> "Info"
                         "productos" -> "Productos"
                         "cesta" -> "Cesta"
-                        "comprar" -> "Comprar"
+                        "compra" -> "Compra"
                         else -> ""
                     }
                     if (actionText.isNotEmpty()) {
@@ -94,7 +94,7 @@ fun GestorVentanas() {
                 composable("info") { InfoScreen(navController) }
                 composable("productos") { ProductsScreen(navController) }
                 composable("cesta") { ShoppingCartScreen(navController) }
-                composable("comprar") { OrderScreen(navController) }
+                composable("compra") { OrderScreen(navController) }
             }
         }
     }
