@@ -1,10 +1,11 @@
 # 🛒App MercadoRiberaGO — App Android para Mercado Local
 
-![Android](https://img.shields.io/badge/Android-Studio-green?logo=android)
-![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue?logo=kotlin)
-![Firebase](https://img.shields.io/badge/Firebase-Backend-orange?logo=firebase)
-![License](https://img.shields.io/badge/License-MIT-yellow)
-![Build](https://img.shields.io/badge/Build-Passing-brightgreen)
+[![Android](https://img.shields.io/badge/Android-Studio-green?logo=android)](https://developer.android.com/studio)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue?logo=kotlin)](https://kotlinlang.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-Backend-orange?logo=firebase)](https://firebase.google.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](./LICENSE)
+[![Build](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/2DM3A-PROYECTOS/RETO1/actions)
+
 
 **App MercadoRiberaGo** es una aplicación móvil desarrollada en **Android Studio con Kotlin** que permite a los usuarios explorar los productos de un mercado local por categorías, crear una cuenta, añadir productos al carrito y realizar pedidos.  
 Este proyecto fue creado como parte del **RETO 1 del ciclo DAM (Desarrollo de Aplicaciones Multiplataforma)**.
