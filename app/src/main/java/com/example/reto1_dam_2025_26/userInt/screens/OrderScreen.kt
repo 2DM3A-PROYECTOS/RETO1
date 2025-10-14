@@ -17,7 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalShipping
@@ -26,7 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -84,9 +84,10 @@ data class OrderSummary(
 // -------------------------
 // HELPERS
 // -------------------------
-private fun money(value: Double): String =
-    NumberFormat.getCurrencyInstance(Locale("es", "ES")).format(value)
-
+private fun money(value: Double): String {
+    val esES = Locale.forLanguageTag("es-ES")   // ✅ en vez de Locale("es","ES")
+    return NumberFormat.getCurrencyInstance(esES).format(value)
+}
 @Composable
 private fun SectionTitle(text: String) {
     Text(
@@ -251,7 +252,7 @@ fun OrderScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.Outlined.ArrowBack, contentDescription = "Atrás")
+                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Atrás")
                 }
                 Text(
                     "Confirmación de pedido",
@@ -274,7 +275,7 @@ fun OrderScreen(
                 }
                 items(summary.items) { item ->
                     OrderItemRow(item)
-                    Divider()
+                    HorizontalDivider()
                 }
 
                 // Entrega
@@ -303,7 +304,7 @@ fun OrderScreen(
                             if (summary.shippingCost != 0.0) {
                                 KeyValueRow("Envío", money(summary.shippingCost))
                             }
-                            Divider(Modifier.padding(vertical = 8.dp))
+                            HorizontalDivider(Modifier.padding(vertical = 8.dp))
                             KeyValueRow("Total", money(summary.total), emphasize = true)
                         }
                     }
@@ -319,7 +320,7 @@ fun OrderScreen(
                                 .padding(top = 4.dp),
                             shape = RoundedCornerShape(50),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
+                                containerColor = MaterialTheme.colorScheme.secondary
                             )
                         ) {
                             Text("Confirmar pedido")
@@ -373,11 +374,11 @@ fun OrderScreen(
 }
 
 // -------------------------
-// PREVIEW (opcional)
+// PREVIEW
 // -------------------------
 @Preview(showBackground = true)
 @Composable
-private fun OrderScreenPreview() {
+private fun OrderScreenPreview() { //PRESIONA AQUI PARA VER LA VENTANA
     val nav = rememberNavController()
     OrderScreen(navController = nav)
 }
