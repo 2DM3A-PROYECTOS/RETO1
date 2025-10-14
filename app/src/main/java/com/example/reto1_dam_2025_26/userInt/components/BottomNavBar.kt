@@ -25,7 +25,7 @@ fun BottomNavBar(
 
     NavigationBar(
         modifier = if (isLandscape) Modifier.height(60.dp) else Modifier,
-        containerColor = MaterialTheme.colorScheme.secondary
+        containerColor = MaterialTheme.colorScheme.primaryContainer
     ) {
         val navItems = listOf(
             NavItem("info", Icons.Default.Info, "Info"),

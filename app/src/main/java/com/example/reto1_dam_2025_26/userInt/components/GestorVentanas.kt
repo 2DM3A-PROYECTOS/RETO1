@@ -49,7 +49,7 @@ fun GestorVentanas() {
             TopAppBar(
                 modifier = if (isLandscape) Modifier.height(70.dp) else Modifier,
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
