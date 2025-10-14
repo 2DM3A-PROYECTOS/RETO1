@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.reto1_dam_2025_26.R
 import com.example.reto1_dam_2025_26.userInt.screens.Product
 
@@ -63,9 +64,9 @@ fun ProductPopup(
                             .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        //Imagen del producto
-                        Image(
-                            painter = painterResource(id = product?.imageRes?:R.drawable.cattt),
+                        //Url del imagen
+                        AsyncImage(
+                            model = product?.imageUrl?:"https://img.freepik.com/vector-gratis/ilustracion-vectorial-diseno-grafico_24908-54512.jpg",
                             contentDescription = product?.name?: "Imagen del producto",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
