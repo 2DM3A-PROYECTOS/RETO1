@@ -3,7 +3,7 @@
 [![Android](https://img.shields.io/badge/Android-Studio-green?logo=android)](https://developer.android.com/studio)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue?logo=kotlin)](https://kotlinlang.org/)
 [![Firebase](https://img.shields.io/badge/Firebase-Backend-orange?logo=firebase)](https://firebase.google.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](./LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](#-licencia)
 [![Build](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/2DM3A-PROYECTOS/RETO1/actions)
 
 
