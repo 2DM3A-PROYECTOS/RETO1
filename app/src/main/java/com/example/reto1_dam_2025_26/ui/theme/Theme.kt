@@ -1,57 +1,83 @@
 package com.example.reto1_dam_2025_26.ui.theme
 
-import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 
+// Esquema CLARO: jerarquía limpia y contraste correcto
 private val LightColorScheme = lightColorScheme(
     primary = Blanco,
-    primaryContainer = Blanco,
-    onPrimary = Color.White,
-    secondary = RojoMercado,
-    onSecondary = Color.White,
-    background = Blanco,
-    surface = Blanco,
-    onBackground = Color.White,
-    onSurface = Color.White
+    onPrimary = Blanco,
+    primaryContainer = RojoMercado,
+    onPrimaryContainer = NegroSuave,
+
+    secondary = Salmon,
+    onSecondary = NegroSuave,                 // texto oscuro sobre botón/acento claro
+    secondaryContainer = VarianteSuperficieClara,
+    onSecondaryContainer = NegroSuave,
+
+    // Fondo y superficies
+    background = FondoClaro,                  // pantalla: suave, no blanco “plano”
+    onBackground = NegroSuave,
+    surface = SuperficieClara,                // cards/containers
+    onSurface = NegroSuave,
+    surfaceVariant = VarianteSuperficieClara, // listas, divisores
+    onSurfaceVariant = NegroSuave,
+
+    // (opcional) tercer color para etiquetas/estadísticas
+    tertiary = Tercario,
+    onTertiary = OnTercario,
+
+    // Estados
+    error = Error,
+    onError = OnError,
+
+    outline = Outline
 )
 
+// Esquema OSCURO: mantiene la marca visible sin “empastar”
 private val DarkColorScheme = darkColorScheme(
-    primary = Blanco,
-    primaryContainer = Blanco,
-    onPrimary = Color.White,
-    secondary = RojoMercado,
-    onSecondary = Color.White,
-    background = Blanco,
-    surface = Blanco,
-    onBackground = Color.White,
-    onSurface = Color.White
+    primary = RojoMercado,
+    onPrimary = Blanco,
+    primaryContainer = VarianteSuperficieOscura,
+    onPrimaryContainer = Blanco,
+
+    secondary = Salmon,
+    onSecondary = NegroSuave,                 // contraste alto sobre acento claro
+    secondaryContainer = VarianteSuperficieOscura,
+    onSecondaryContainer = Blanco,
+
+    background = NegroSuave,                  // fondo principal oscuro
+    onBackground = Blanco,
+    surface = SuperficieOscura,               // cards/containers
+    onSurface = Blanco,
+    surfaceVariant = VarianteSuperficieOscura,
+    onSurfaceVariant = Blanco,
+
+    tertiary = Tercario,
+    onTertiary = Blanco,
+
+    error = Error,
+    onError = OnError,
+
+    outline = Outline
 )
 
+
+/**
+ * Tema de la app.
+ * - dynamicColor desactivado por defecto para respetar la identidad visual del mercado.
+ * - Usa MaterialTheme.colorScheme.* y MaterialTheme.typography.* en tus pantallas.
+ */
 @Composable
 fun Reto1_DAM_202526Theme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false, // ← mantenlo en false para conservar tu paleta
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

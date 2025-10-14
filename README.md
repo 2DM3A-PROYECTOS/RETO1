@@ -1,6 +1,13 @@
-# 🛒 MercadoGO — App Android para Mercado Local
+# 🛒App MercadoRiberaGO — App Android para Mercado Local
 
-**MercadoRiberaGo** es una aplicación móvil desarrollada en **Android Studio con Kotlin** que permite a los usuarios explorar los productos de un mercado local por categorías, crear una cuenta, añadir productos al carrito y realizar pedidos.  
+[![Android](https://img.shields.io/badge/Android-Studio-green?logo=android)](https://developer.android.com/studio)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue?logo=kotlin)](https://kotlinlang.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-Backend-orange?logo=firebase)](https://firebase.google.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](#-licencia)
+[![Build](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/2DM3A-PROYECTOS/RETO1/actions)
+
+
+**App MercadoRiberaGo** es una aplicación móvil desarrollada en **Android Studio con Kotlin** que permite a los usuarios explorar los productos de un mercado local por categorías, crear una cuenta, añadir productos al carrito y realizar pedidos.  
 Este proyecto fue creado como parte del **RETO 1 del ciclo DAM (Desarrollo de Aplicaciones Multiplataforma)**.
 
 ---
@@ -20,22 +27,24 @@ Este proyecto fue creado como parte del **RETO 1 del ciclo DAM (Desarrollo de Ap
 
 ## 🧱 Estructura del proyecto
 ```
-📁 MercadoRiberaGO/
+📁 RETO1/
 ├── app/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/mercadogo/
-│   │   │   │   ├── ui/        # Pantallas Compose (Inicio, Carrito, Pedido)
-│   │   │   │   ├── data/      # Modelos y repositorios Firestore
-│   │   │   │   ├── viewmodel/ # Lógica de negocio (MVVM)
-│   │   │   │   └── utils/     # Funciones auxiliares
-│   │   │   └── res/           # Recursos gráficos y layouts
-│   ├── build.gradle
-│   └── AndroidManifest.xml
+│   └── src/
+│       └── main/
+│           ├── java/
+│           │   └── com/
+│           │       └── example/
+│           │           └── reto1_dam_2025_26/
+│           │               ├── ui/theme/       # Estilos y colores Compose
+│           │               ├── data/           # Modelos y repositorios Firestore
+│           │               ├── viewmodels/     # Lógica MVVM
+│           │               └── utils/          # Funciones auxiliares
+│           └── res/                            # Recursos (layouts, strings, etc.)
 ├── scripts/
-│   ├── install_apk.sh         # Script difusión (instalación APK)
-│   └── send_email_lambda.js   # Script AWS Lambda (notificación email)
-└── README.md
+│   ├── install_apk.sh        # Instalador automático de APK
+│   └── send_email_lambda.js  # Envío de email desde AWS Lambda
+├── gradle/
+
 ```
 ---
 
@@ -43,8 +52,7 @@ Este proyecto fue creado como parte del **RETO 1 del ciclo DAM (Desarrollo de Ap
 
 ### 1️⃣ Clonar el repositorio
 ```bash
-git clone https://github.com/MercadoGO/App.git
-cd App
+git clone https://github.com/2DM3A-PROYECTOS/RETO1.git
 ```
 ---
 
