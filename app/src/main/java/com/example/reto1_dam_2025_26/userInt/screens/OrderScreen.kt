@@ -313,7 +313,10 @@ fun OrderScreen(
                 item {
                     Column(Modifier.fillMaxWidth()) {
                         Button(
-                            onClick = { showConfirm = true },
+                            onClick = { navController.navigate("gracias") {
+                                popUpTo("compra") { inclusive = true }
+                                launchSingleTop = true
+                            } },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 4.dp),
@@ -325,7 +328,10 @@ fun OrderScreen(
                             Text("Confirmar pedido")
                         }
                         OutlinedButton(
-                            onClick = { navController.navigate("carrito") },
+                            onClick = { navController.navigate("cesta") {
+                                popUpTo("compra") { inclusive = true }
+                                launchSingleTop = true
+                            } },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 8.dp),

@@ -22,6 +22,7 @@ import com.example.reto1_dam_2025_26.R
 import com.example.reto1_dam_2025_26.userInt.screens.OrderScreen
 import com.example.reto1_dam_2025_26.userInt.screens.ProductsScreen
 import com.example.reto1_dam_2025_26.userInt.screens.ShoppingCartScreen
+import com.example.reto1_dam_2025_26.userInt.screens.Thanks
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,6 +96,7 @@ fun GestorVentanas() {
                 composable("productos") { ProductsScreen(navController) }
                 composable("cesta") { ShoppingCartScreen(navController) }
                 composable("compra") { OrderScreen(navController) }
+                composable("gracias") {Thanks(navController)}
             }
         }
     }
