@@ -15,7 +15,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
-import com.example.reto1_dam_2025_26.objects.*
 import com.example.reto1_dam_2025_26.userInt.screens.InfoScreen
 import com.example.reto1_dam_2025_26.viewmodels.*
 import com.example.reto1_dam_2025_26.R
@@ -26,8 +25,6 @@ import com.example.reto1_dam_2025_26.userInt.screens.ShoppingCartScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GestorVentanas() {
-    var user by remember { mutableStateOf(User("", "")) }
-    var product by remember { mutableStateOf(Product("", "", "",0.0, 21)) }
 
     val userViewModel: UserViewModel = viewModel()
     val productViewModel: ProductViewModel = viewModel()
