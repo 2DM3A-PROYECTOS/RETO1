@@ -43,8 +43,8 @@ android {
 
 dependencies {
 
-    implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
-
+    implementation(platform("com.google.firebase:firebase-bom:34.4.0")) //la linea  necesaria para conectar a base de datos
+    implementation("com.google.firebase:firebase-firestore") // otro linea necesaria para conectar
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.animation.core.lint)
     implementation("androidx.compose.material:material-icons-extended")
+    //implementation(libs.firebase.firestore.ktx)
     //implementation(libs.androidx.material3)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -65,5 +66,4 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation("io.coil-kt:coil-compose:2.6.0") //bibleoteca para poder usar los enlaces de los imagenes
-
 }
