@@ -33,11 +33,11 @@ fun Es_Una_Prueba() {
     ) {
         Text("PRUEBA", color = Color.Black, fontWeight = FontWeight.Bold)
     }
-    ProductPopup(
-        isVisible = showPopup,
-        onDismiss = { showPopup = false },
-        onAddToCart = { /* TODO: добавить в корзину из БД */ },
-        onBuyNow = { /* TODO: оформить покупку */ },
-        onGoToCart = { /* TODO: переход в корзину */ }
-    )
+    //ProductPopup(
+    //    isVisible = showPopup,
+    //    onDismiss = { showPopup = false },
+    //    onAddToCart = { /* TODO: добавить в корзину из БД */ },
+    //    onBuyNow = { /* TODO: оформить покупку */ },
+    //    onGoToCart = { /* TODO: переход в корзину */ }
+    //)
 }
