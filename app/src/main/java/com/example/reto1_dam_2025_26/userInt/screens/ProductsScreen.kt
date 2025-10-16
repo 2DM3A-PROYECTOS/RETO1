@@ -233,37 +233,71 @@ fun ProductsScreen(
             item { Spacer(Modifier.height(8.dp)) }
         }
 
-        //  Muestra el popup si se ha pulsado un producto
-        ProductPopup(
-            isVisible = showPopup,
-            onDismiss = { showPopup = false },
-            product = selectedProduct, // producto seleccionado
-            onAddToCart = { /* Añadir al carrito */ },
-            onBuyNow = { /* Comprar ahora */ },
-            onGoToCart = { navController.navigate("ShoppingCartScreen") }
-        )
+// Muestra el popup solo cuando hay producto seleccionado
+        if (showPopup && selectedProduct != null) {
+            val p = selectedProduct!!
+            ProductPopup(
+                isVisible = true,
+                product = p,
+                onDismiss = { showPopup = false },
+                onAddToCart = {
+                    onAddClick(p)
+                    showPopup = false
+                },
+                onBuyNow = {
+                    onAddClick(p)
+                    showPopup = false
+                    navController.navigate("ShoppingCartScreen")
+                },
+                onGoToCart = {
+                    showPopup = false
+                    navController.navigate("ShoppingCartScreen")
+                }
+            )
+        }
+
     }
 }
 
 //  Un componente para cada categoría (Carne, Pescado, etc.)
 @Composable
-fun CategoryRow(title: String, products: List<Product>, onProductClick: (Product) -> Unit) {
-    Text(text = title, color = Color.Black, fontSize = 40.sp)
+fun CategoryRow(
+    title: String,
+    products: List<Product>,
+    onAddClick: (Product) -> Unit,
+    onGoToCart: () -> Unit
+) {
+    // Estado local del popup por fila/categoría
+    var showPopup by remember { mutableStateOf(false) }
+    var selectedProduct by remember { mutableStateOf<Product?>(null) }
+
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onBackground
+    )
     Spacer(modifier = Modifier.height(8.dp))
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         items(products.size) { index ->
-            ProductItem(product = products[index], onClick = { onProductClick(products[index]) })
+            val p = products[index]
+            ProductPill(
+                product = p,
+                onAddClick = onAddClick,
+                onOpen = { prod ->
+                    selectedProduct = prod
+                    showPopup = true
+                }
+            )
         }
     }
 
-    // Popup global (solo uno), alimentado por selectedProduct
+    // Popup local a esta fila
     if (showPopup && selectedProduct != null) {
         val p = selectedProduct!!
         ProductPopup(
             isVisible = true,
-            product = p,                      // ⬅ ahora pasamos el Product completo
+            product = p,
             onDismiss = { showPopup = false },
             onAddToCart = {
                 onAddClick(p)
@@ -272,15 +306,16 @@ fun CategoryRow(title: String, products: List<Product>, onProductClick: (Product
             onBuyNow = {
                 onAddClick(p)
                 showPopup = false
-                navController.navigate("ShoppingCartScreen")
+                onGoToCart()
             },
             onGoToCart = {
                 showPopup = false
-                navController.navigate("ShoppingCartScreen")
+                onGoToCart()
             }
         )
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

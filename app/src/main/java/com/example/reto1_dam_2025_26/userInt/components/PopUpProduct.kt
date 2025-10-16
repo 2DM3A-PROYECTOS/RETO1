@@ -1,3 +1,4 @@
+
 package com.example.reto1_dam_2025_26.userInt.components
 
 import androidx.compose.animation.AnimatedVisibility
