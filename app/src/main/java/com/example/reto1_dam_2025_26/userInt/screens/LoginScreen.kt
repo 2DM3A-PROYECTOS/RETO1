@@ -2,6 +2,7 @@
 
 package com.example.reto1_dam_2025_26.userInt.screens
 
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -16,12 +17,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.reto1_dam_2025_26.data.repository.FirestoreRepository
+import com.example.reto1_dam_2025_26.userInt.components.GestorVentanas
 
 @Composable
 fun AuthScreen() {
@@ -80,6 +84,15 @@ fun LoginCard(onRegisterClick: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+    //repository for all bd connect
+    val repository = remember { FirestoreRepository() }
+
+    //context
+    val context = LocalContext.current
+
+    //loading when you click on the button
+    var isLoading by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier
@@ -169,14 +182,41 @@ fun LoginCard(onRegisterClick: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { /* TODO */ },
+                onClick = {
+                    val emailUser = email
+                    val passwordUser = password
+
+                    isLoading = true
+
+                    if (emailUser.isEmpty() && passwordUser.isEmpty()) {
+                        Toast.makeText(context, "Hay que rellenar todos los campos.", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    repository.loginEmail(email, password) { success, message ->
+                        isLoading = false
+                        if (success) {
+                            Toast.makeText(context, "Inicio de sesión exitoso ✅", Toast.LENGTH_SHORT).show()
+                            GestorVentanas()
+                        } else {
+                            Toast.makeText(context, "Error: ${message ?: "Error desconocido"}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White)
             ) {
-                Text("Entrar", color = Color.Black, fontWeight = FontWeight.Bold)
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.Black,
+                        strokeWidth = 3.dp
+                    )
+                } else {
+                    Text("Entrar", color = Color.Black, fontWeight = FontWeight.Bold)
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

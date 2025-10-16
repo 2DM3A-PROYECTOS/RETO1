@@ -2,6 +2,7 @@ package com.example.reto1_dam_2025_26.data.repository
 
 import android.os.Handler
 import android.os.Looper
+import androidx.compose.runtime.Composable
 import com.example.reto1_dam_2025_26.data.model.Order
 import com.example.reto1_dam_2025_26.data.model.OrderItem
 import com.example.reto1_dam_2025_26.data.model.Product
@@ -27,7 +28,7 @@ class FirestoreRepository {
         }
     }
 
-    fun loginEmail(email: String, password: String, onResult: (Boolean, String?) -> Unit) {
+    fun loginEmail(email: String, password: String, onResult: @Composable (Boolean, String?) -> Unit) {
         io.execute {
             try {
                 Tasks.await(auth.signInWithEmailAndPassword(email, password))
