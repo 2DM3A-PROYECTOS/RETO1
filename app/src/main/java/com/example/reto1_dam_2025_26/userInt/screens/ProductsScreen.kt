@@ -1,5 +1,4 @@
 package com.example.reto1_dam_2025_26.userInt.screens
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -232,6 +231,30 @@ fun ProductsScreen(
                 )
             }
             item { Spacer(Modifier.height(8.dp)) }
+        }
+
+        //  Muestra el popup si se ha pulsado un producto
+        ProductPopup(
+            isVisible = showPopup,
+            onDismiss = { showPopup = false },
+            product = selectedProduct, // producto seleccionado
+            onAddToCart = { /* Añadir al carrito */ },
+            onBuyNow = { /* Comprar ahora */ },
+            onGoToCart = { navController.navigate("ShoppingCartScreen") }
+        )
+    }
+}
+
+//  Un componente para cada categoría (Carne, Pescado, etc.)
+@Composable
+fun CategoryRow(title: String, products: List<Product>, onProductClick: (Product) -> Unit) {
+    Text(text = title, color = Color.Black, fontSize = 40.sp)
+    Spacer(modifier = Modifier.height(8.dp))
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(products.size) { index ->
+            ProductItem(product = products[index], onClick = { onProductClick(products[index]) })
         }
     }
 

@@ -3,7 +3,6 @@ package com.example.reto1_dam_2025_26.userInt.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -314,7 +313,10 @@ fun OrderScreen(
                 item {
                     Column(Modifier.fillMaxWidth()) {
                         Button(
-                            onClick = { showConfirm = true },
+                            onClick = { navController.navigate("gracias") {
+                                popUpTo("compra") { inclusive = true }
+                                launchSingleTop = true
+                            } },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 4.dp),
@@ -326,7 +328,10 @@ fun OrderScreen(
                             Text("Confirmar pedido")
                         }
                         OutlinedButton(
-                            onClick = { navController.navigate("carrito") },
+                            onClick = { navController.navigate("cesta") {
+                                popUpTo("compra") { inclusive = true }
+                                launchSingleTop = true
+                            } },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 8.dp),

@@ -53,9 +53,9 @@ fun ProductPopup(
     val typography = MaterialTheme.typography
 
     AnimatedVisibility(
-        visible = isVisible,
-        enter = fadeIn(),
-        exit = fadeOut()
+        visible = isVisible, //  Solo se muestra si isVisible = true
+        enter = fadeIn(), //  Animación de aparición
+        exit = fadeOut() //  Animación de desaparición
     ) {
         Box(
             modifier = Modifier
@@ -157,8 +157,8 @@ fun ProductPopup(
                         Spacer(Modifier.height(80.dp)) // espacio para los botones inferiores
                     }
 
-
                     // Botones inferiores
+
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
@@ -174,6 +174,7 @@ fun ProductPopup(
             }
 
             // Botón de cerrar (en esquina superior)
+
             IconButton(
                 onClick = onDismiss,
                 modifier = Modifier

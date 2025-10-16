@@ -31,7 +31,7 @@ fun BottomNavBar(
             NavItem("info", Icons.Default.Info, "Info"),
             NavItem("productos", Icons.Default.Menu, "Productos"),
             NavItem("cesta", Icons.Default.ShoppingCart, "Cesta", requiresLogin = true),
-            NavItem("pedidos", Icons.Default.Search, "Pedidos", requiresLogin = true)
+            NavItem("compra", Icons.Default.Search, "Compra", requiresLogin = true)
         )
 
         navItems.forEach { item ->
@@ -42,12 +42,15 @@ fun BottomNavBar(
                 onClick = {
                     if (!item.requiresLogin || isLoggedIn) {
                         navController.navigate(item.route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
                         }
                     }
                 },
+
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.onSecondary,
                     selectedTextColor = MaterialTheme.colorScheme.onSecondary,
