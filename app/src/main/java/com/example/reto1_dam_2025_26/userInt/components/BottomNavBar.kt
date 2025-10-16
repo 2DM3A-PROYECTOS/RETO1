@@ -42,12 +42,15 @@ fun BottomNavBar(
                 onClick = {
                     if (!item.requiresLogin || isLoggedIn) {
                         navController.navigate(item.route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
                         }
                     }
                 },
+
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.onSecondary,
                     selectedTextColor = MaterialTheme.colorScheme.onSecondary,
