@@ -17,26 +17,42 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.reto1_dam_2025_26.R
-import com.example.reto1_dam_2025_26.userInt.screens.Product
+import com.example.reto1_dam_2025_26.data.model.Product
+import java.text.NumberFormat
+import java.util.Locale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 
+// --- Formateo de precios ---
+private val currencyLocale = Locale.forLanguageTag("es-ES")
+private fun money(v: Double) = NumberFormat.getCurrencyInstance(currencyLocale).format(v)
+
+/**
+ * Popup de producto con diseño limpio:
+ * - Card blanca (usa theme.surface)
+ * - Texto oscuro (usa theme.onSurface)
+ * - Botones adaptados al tema
+ */
 @Composable
 fun ProductPopup(
-    isVisible: Boolean, //  Controla si el popup se ve o
-    product: Product? = null, // el producto selecionado
-    onDismiss: () -> Unit, //  Acción al cerrar el popup (normalmente ocultarlo)
-    onAddToCart: () -> Unit, //  Acción al pulsar "Añadir a carrito"
-    onBuyNow: () -> Unit,  //  Acción al pulsar "Comprar ahora"
-    onGoToCart: () -> Unit //  Acción al pulsar "Ir al carrito"
+    isVisible: Boolean,
+    product: Product,
+    onDismiss: () -> Unit,
+    onAddToCart: () -> Unit,
+    onBuyNow: () -> Unit,
+    onGoToCart: () -> Unit,
+    placeholderRes: Int = R.drawable.outline_add_shopping_cart_24
 ) {
+    val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     AnimatedVisibility(
         visible = isVisible, //  Solo se muestra si isVisible = true
         enter = fadeIn(), //  Animación de aparición
@@ -45,70 +61,105 @@ fun ProductPopup(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.5f))  //  Fondo oscuro semitransparente
+                .background(colors.onBackground.copy(alpha = 0.5f))
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            // El cuadro del popup (tarjeta principal)
             Card(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.85f)
-                    .clip(RoundedCornerShape(28.dp)),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF36C5C))
-            ) {
+                    .fillMaxWidth(0.94f)          // algo de margen lateral
+                    .wrapContentHeight()           // altura según contenido
+                    .heightIn(max = 600.dp)        // tope de altura (ajusta si quieres)
+                    .clip(RoundedCornerShape(24.dp)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            )
+            {
                 Box(modifier = Modifier.fillMaxSize()) {
+
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 20.dp, vertical = 24.dp)
-                            .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .verticalScroll(rememberScrollState())
                     ) {
-                        //Url del imagen
-                        AsyncImage(
-                            model = product?.imageUrl?:"https://img.freepik.com/vector-gratis/ilustracion-vectorial-diseno-grafico_24908-54512.jpg",
-                            contentDescription = product?.name?: "Imagen del producto",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .height(200.dp)
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(20.dp))
+                        // Imagen del producto
+                        ProductImage(
+                            imageUrl = product.imageUrl,
+                            placeholderRes = placeholderRes,
+                            height = 180.dp  // antes 200dp
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
-                        //Nombre del producto
+
+                        Spacer(Modifier.height(20.dp))
+
+                        // Nombre del producto
                         Text(
-                            text = product?.name ?:"Nombre no disponible",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            textAlign = TextAlign.Center
+                            text = product.name,
+                            style = typography.titleLarge.copy(
+                                color = colors.onSurface,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
-                        //Descripción genérica
+                        // Categoría (badge)
+                        if (product.category.isNotBlank()) {
+                            Spacer(Modifier.height(6.dp))
+                            CategoryBadge(
+                                text = product.category,
+                                backgroundColor = colors.secondaryContainer,
+                                textColor = colors.onSecondaryContainer
+                            )
+                        }
+
+                        // Descripción
+                        if (product.description.isNotBlank()) {
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = product.description,
+                                style = typography.bodyMedium.copy(
+                                    color = colors.onSurfaceVariant,
+                                    lineHeight = 20.sp
+                                )
+                            )
+                        }
+
+                        // Precio principal
+                        Spacer(Modifier.height(20.dp))
                         Text(
-                            text =  "Producto de excelente calidad, disponible en nuestra tienda.",
-                            fontSize = 16.sp,
-                            color = Color.White.copy(alpha = 0.9f),
-                            textAlign = TextAlign.Center
+                            text = money(product.price),
+                            style = typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = colors.primary
+                            )
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
-                        //Precio del producto
-                        Text(
-                            text = product?.price ?:"-",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White
-                        )
+                        // Detalles secundarios (stock, tienda)
+                        Spacer(Modifier.height(8.dp))
+                        if (product.stock > 0) {
+                            Text(
+                                text = "Stock disponible: ${product.stock}",
+                                style = typography.labelLarge.copy(color = colors.onSurfaceVariant)
+                            )
+                        } else {
+                            Text(
+                                text = "Sin stock disponible",
+                                style = typography.labelLarge.copy(color = colors.error)
+                            )
+                        }
 
-                        Spacer(modifier = Modifier.height(80.dp)) // место для кнопок
+                        if (product.storeName.isNotBlank()) {
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                text = "Tienda: ${product.storeName}",
+                                style = typography.labelLarge.copy(color = colors.onSurfaceVariant)
+                            )
+                        }
+
+                        Spacer(Modifier.height(80.dp)) // espacio para los botones inferiores
                     }
 
-                    // ActionButtons siempre abajo
-                    //Los botones (añadir, comprar, ir al carrito)
+                    // Botones inferiores
+
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
@@ -122,25 +173,63 @@ fun ProductPopup(
                     }
                 }
             }
-            //  Botón de cerrar (la “X”)
+
+            // Botón de cerrar (en esquina superior)
+
             IconButton(
                 onClick = onDismiss,
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .offset(x = 8.dp, y = 8.dp)
                     .size(36.dp)
-                    .background(
-                        color = Color.White.copy(alpha = 0.25f),
-                        shape = RoundedCornerShape(50)
-                    )
+                    .background(colors.primary.copy(alpha = 0.15f), RoundedCornerShape(50))
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Cerrar",
-                    tint = Color.White
+                    tint = colors.onPrimaryContainer
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ProductImage(
+    imageUrl: String,
+    placeholderRes: Int,
+    height: Dp = 180.dp
+) {
+    val modifier = Modifier
+        .height(height)
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(20.dp))
+
+    if (imageUrl.isNotBlank()) {
+        AsyncImage(model = imageUrl, contentDescription = null, contentScale = ContentScale.Crop, modifier = modifier)
+    } else {
+        Image(painter = painterResource(placeholderRes), contentDescription = null, contentScale = ContentScale.Crop, modifier = modifier)
+    }
+}
+
+
+@Composable
+private fun CategoryBadge(
+    text: String,
+    backgroundColor: Color,
+    textColor: Color
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(backgroundColor)
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = text,
+            color = textColor,
+            style = MaterialTheme.typography.labelLarge
+        )
     }
 }
 
@@ -150,6 +239,9 @@ fun ActionButtons(
     onBuyNow: () -> Unit,
     onGoToCart: () -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -163,13 +255,11 @@ fun ActionButtons(
                 modifier = Modifier
                     .weight(0.6f)
                     .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                colors = ButtonDefaults.buttonColors(containerColor = colors.primaryContainer)
             ) {
                 Text(
-                    text = "Añadir a carrito",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFFF36C5C)
+                    text = "Añadir al carrito",
+                    style = typography.labelLarge.copy(color = colors.onPrimaryContainer)
                 )
             }
 
@@ -178,13 +268,11 @@ fun ActionButtons(
                 modifier = Modifier
                     .weight(0.4f)
                     .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF534F))
+                colors = ButtonDefaults.buttonColors(containerColor = colors.secondary)
             ) {
                 Text(
                     text = "Comprar",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White
+                    style = typography.labelLarge.copy(color = colors.onSecondary)
                 )
             }
         }
@@ -194,13 +282,11 @@ fun ActionButtons(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+            colors = ButtonDefaults.buttonColors(containerColor = colors.primaryContainer)
         ) {
             Text(
-                text = "Ir a carrito",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color(0xFFF36C5C)
+                text = "Ir al carrito",
+                style = typography.labelLarge.copy(color = colors.onPrimaryContainer)
             )
         }
     }

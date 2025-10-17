@@ -2,7 +2,7 @@ package com.example.reto1_dam_2025_26
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.reto1_dam_2025_26.userInt.screens.Product
+import com.example.reto1_dam_2025_26.data.model.Product
 import com.google.firebase.firestore.FirebaseFirestore
 
 import org.junit.Test
