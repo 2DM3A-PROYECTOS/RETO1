@@ -1,18 +1,13 @@
 package com.example.reto1_dam_2025_26
 
-import InsertarBD.AñadirProduct
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Surface
-import androidx.navigation.compose.rememberNavController
 import com.example.reto1_dam_2025_26.ui.theme.Reto1_DAM_202526Theme
 import com.example.reto1_dam_2025_26.userInt.components.GestorVentanas
-import com.example.reto1_dam_2025_26.userInt.screens.AuthScreen
-import InsertarBD.AñadirUsers
-import com.example.reto1_dam_2025_26.userInt.screens.Es_Una_Prueba
-import com.example.reto1_dam_2025_26.userInt.screens.OrderScreen
+
 
 /**
  * Inicia la aplicación con la ventana de login
@@ -32,7 +27,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-       // AñadirUsers().añadirUser()
-        AñadirProduct().añadirProduct()
+
+
     }
 }
