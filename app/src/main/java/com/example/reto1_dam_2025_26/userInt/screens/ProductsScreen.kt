@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -31,6 +32,9 @@ import com.example.reto1_dam_2025_26.data.model.Product
 import com.example.reto1_dam_2025_26.userInt.components.ProductPopup
 import java.text.NumberFormat
 import java.util.Locale
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.reto1_dam_2025_26.viewmodels.ProductsViewModel
+
 
 // ==== Helpers ====
 private val currencyLocale = Locale.forLanguageTag("es-ES")
@@ -163,139 +167,99 @@ private fun ProductCard(
 @Composable
 fun ProductsScreen(
     navController: NavController,
-    onAddClick: (Product) -> Unit = {} // conecta con tu CartViewModel.add(product)
+    onAddClick: (Product) -> Unit = {}
 ) {
-    // Estado del popup
+    // 1) Obtener VM y estado
+    val vm: ProductsViewModel = viewModel()
+    val ui = vm.uiState.collectAsState().value
+
+    // 2) Estado del popup
     var showPopup by remember { mutableStateOf(false) }
     var selectedProduct by remember { mutableStateOf<Product?>(null) }
-
-    // ---- Demo data (hasta conectar Firestore) ----
-    val carne = remember {
-        listOf(
-            Product(
-                id = "carne_1", name = "Filete de lomo", description = "Corte fresco de lomo",
-                price = 10.0, stock = 12, imageUrl = "",
-                category = "Carne", storeName = "Carnicería Ribera"
-            ),
-            Product(
-                id = "carne_2", name = "Chuletillas de cordero", description = "Tiernas y sabrosas",
-                price = 8.0, stock = 9, imageUrl = "",
-                category = "Carne", storeName = "Carnicería Ribera"
-            ),
-            Product(
-                id = "carne_3", name = "Metro", description = "Corte especial",
-                price = 7.5, stock = 7, imageUrl = "",
-                category = "Carne", storeName = "Carnicería Ribera"
-            ),
-            Product(
-                id = "carne_4", name = "Pechuga de pollo", description = "Magras y jugosas",
-                price = 6.0, stock = 15, imageUrl = "",
-                category = "Carne", storeName = "Carnicería Ribera"
-            ),
-            Product(
-                id = "carne_5", name = "Chuletón", description = "Maduración 30 días",
-                price = 64.5, stock = 3, imageUrl = "",
-                category = "Carne", storeName = "Carnicería Ribera"
-            )
-        )
-    }
-    val pescado = remember {
-        listOf(
-            Product("pesc_1","Merluza","Del Cantábrico",11.5,8,"","Pescado","Pescadería Norte"),
-            Product("pesc_2","Bacalao","Tradicional",10.5,10,"","Pescado","Pescadería Norte"),
-            Product("pesc_3","Bonito","Temporada",12.0,6,"","Pescado","Pescadería Norte"),
-            Product("pesc_4","Salmón","Noruego",15.8,5,"","Pescado","Pescadería Norte"),
-            Product("pesc_5","Sardinas","Frescas",11.6,20,"","Pescado","Pescadería Norte"),
-        )
-    }
-    val bebidas = remember {
-        listOf(
-            Product("beb_1","Zumo de naranja","Natural exprimido",5.6,30,"","Bebidas","Frutería Sol"),
-            Product("beb_2","Coca-Cola","Lata 330ml",2.2,100,"","Bebidas","Autoservicio Rio"),
-            Product("beb_3","Red Bull","Lata 250ml",3.1,50,"","Bebidas","Autoservicio Rio"),
-            Product("beb_4","Agua","Botella 1.5L",1.5,200,"","Bebidas","Autoservicio Rio"),
-            Product("beb_5","Pepsi","Lata 330ml",2.1,80,"","Bebidas","Autoservicio Rio"),
-        )
-    }
-    val pasteles = remember {
-        listOf(
-            Product("pas_1","Pastel Vasco","Relleno de crema",24.0,4,"","Pasteles","Pastelería Dulce"),
-            Product("pas_2","Tarta Pepisandwich","Chocolate y crema",31.5,3,"","Pasteles","Pastelería Dulce"),
-            Product("pas_3","Topper Feliz Cumple","Topper decorativo",8.0,15,"","Pasteles","Pastelería Dulce"),
-            Product("pas_4","Tarta Explosión de chocolate","Triple choco",5.9,10,"","Pasteles","Pastelería Dulce"),
-        )
-    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            item {
-                CategorySection(
-                    "Carne",
-                    carne,
-                    onAddClick = onAddClick,
-                    onOpen = { p -> selectedProduct = p; showPopup = true }
-                )
-            }
-            item {
-                CategorySection(
-                    "Pescado",
-                    pescado,
-                    onAddClick = onAddClick,
-                    onOpen = { p -> selectedProduct = p; showPopup = true }
-                )
-            }
-            item {
-                CategorySection(
-                    "Bebidas",
-                    bebidas,
-                    onAddClick = onAddClick,
-                    onOpen = { p -> selectedProduct = p; showPopup = true }
-                )
-            }
-            item {
-                CategorySection(
-                    "Pasteles",
-                    pasteles,
-                    onAddClick = onAddClick,
-                    onOpen = { p -> selectedProduct = p; showPopup = true }
-                )
-            }
-            item { Spacer(Modifier.height(8.dp)) }
-        }
-
-// Muestra el popup solo cuando hay producto seleccionado
-        if (showPopup && selectedProduct != null) {
-            val p = selectedProduct!!
-            ProductPopup(
-                isVisible = true,
-                product = p,
-                onDismiss = { showPopup = false },
-                onAddToCart = {
-                    onAddClick(p)
-                    showPopup = false
-                },
-                onBuyNow = {
-                    onAddClick(p)
-                    showPopup = false
-                    navController.navigate("ShoppingCartScreen")
-                },
-                onGoToCart = {
-                    showPopup = false
-                    navController.navigate("ShoppingCartScreen")
+        when {
+            ui.loading -> {
+                // Loading
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
-            )
-        }
+            }
+            ui.error != null -> {
+                // Error + botón reintentar
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Error al cargar productos:\n${ui.error}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    FilledTonalButton(onClick = { vm.load() }) { Text("Reintentar") }
+                }
+            }
+            ui.categories.isEmpty() -> {
+                // Sin datos
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No hay productos disponibles.")
+                }
+            }
+            else -> {
+                // 3) Pintar categorías desde Firestore
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    ui.categories.forEach { (title, list) ->
+                        item {
+                            CategorySection(
+                                title = title,
+                                products = list,
+                                onAddClick = onAddClick,
+                                onOpen = { p ->
+                                    selectedProduct = p
+                                    showPopup = true
+                                }
+                            )
+                        }
+                    }
+                    item { Spacer(Modifier.height(8.dp)) }
+                }
 
+                // 4) Popup
+                if (showPopup && selectedProduct != null) {
+                    val p = selectedProduct!!
+                    ProductPopup(
+                        isVisible = true,
+                        product = p,
+                        onDismiss = { showPopup = false },
+                        onAddToCart = {
+                            onAddClick(p)
+                            showPopup = false
+                        },
+                        onBuyNow = {
+                            onAddClick(p)
+                            showPopup = false
+                            navController.navigate("ShoppingCartScreen")
+                        },
+                        onGoToCart = {
+                            showPopup = false
+                            navController.navigate("ShoppingCartScreen")
+                        }
+                    )
+                }
+            }
+        }
     }
 }
+
 
 
 

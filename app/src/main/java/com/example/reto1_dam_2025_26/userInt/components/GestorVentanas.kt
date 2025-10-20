@@ -28,7 +28,7 @@ import com.example.reto1_dam_2025_26.userInt.screens.Thanks
 fun GestorVentanas() {
 
     val userViewModel: UserViewModel = viewModel()
-    val productViewModel: ProductViewModel = viewModel()
+    val productViewModel: ProductsViewModel = viewModel()
     val orderViewModel: OrderViewModel = viewModel()
 
     val isLoggedIn = remember { mutableStateOf(true) }
