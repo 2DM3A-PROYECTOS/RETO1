@@ -30,6 +30,7 @@ fun GestorVentanas() {
 
     val userViewModel: UserViewModel = viewModel()
     val productViewModel: ProductsViewModel = viewModel()
+    val cartViewModel: CartViewModel = viewModel()
     val orderViewModel: OrderViewModel = viewModel()
 
     val isLoggedIn = remember { mutableStateOf(true) }
@@ -89,8 +90,8 @@ fun GestorVentanas() {
                 .padding(innerPadding) // solo respetar top/bottom bar
         ) {
             composable("info") { InfoScreen(navController) }
-            composable("productos") { ProductsScreen(navController) }
-            composable("cesta") { ShoppingCartScreen(navController) }
+            composable("productos") { ProductsScreen(navController, cartViewModel) }
+            composable("cesta") { ShoppingCartScreen(navController, cartViewModel ) }
             composable("compra") { OrderScreen(navController) }
             composable("gracias") { Thanks(navController) }
         }

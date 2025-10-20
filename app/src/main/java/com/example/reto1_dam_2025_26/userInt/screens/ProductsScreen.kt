@@ -1,11 +1,10 @@
 package com.example.reto1_dam_2025_26.userInt.screens
-import androidx.compose.foundation.BorderStroke
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -22,10 +21,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.reto1_dam_2025_26.R
 import com.example.reto1_dam_2025_26.data.model.Product
@@ -34,7 +31,7 @@ import java.text.NumberFormat
 import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.reto1_dam_2025_26.viewmodels.ProductsViewModel
-
+import com.example.reto1_dam_2025_26.viewmodels.CartViewModel
 
 // ==== Helpers ====
 private val currencyLocale = Locale.forLanguageTag("es-ES")
@@ -161,15 +158,12 @@ private fun ProductCard(
     }
 }
 
-
-
-// ==== Pantalla ====
 @Composable
 fun ProductsScreen(
     navController: NavController,
-    onAddClick: (Product) -> Unit = {}
+    cartViewModel: CartViewModel
 ) {
-    // 1) Obtener VM y estado
+    // 1) Obtener VM de productos y estado
     val vm: ProductsViewModel = viewModel()
     val ui = vm.uiState.collectAsState().value
 
@@ -183,13 +177,12 @@ fun ProductsScreen(
     ) {
         when {
             ui.loading -> {
-                // Loading
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             }
+
             ui.error != null -> {
-                // Error + botón reintentar
                 Column(
                     modifier = Modifier.fillMaxSize().padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -203,14 +196,15 @@ fun ProductsScreen(
                     FilledTonalButton(onClick = { vm.load() }) { Text("Reintentar") }
                 }
             }
+
             ui.categories.isEmpty() -> {
-                // Sin datos
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("No hay productos disponibles.")
                 }
             }
+
             else -> {
-                // 3) Pintar categorías desde Firestore
+                // 3) Mostrar categorías y productos
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -222,7 +216,9 @@ fun ProductsScreen(
                             CategorySection(
                                 title = title,
                                 products = list,
-                                onAddClick = onAddClick,
+                                onAddClick = { product ->
+                                    cartViewModel.add(product) // añade al carrito
+                                },
                                 onOpen = { p ->
                                     selectedProduct = p
                                     showPopup = true
@@ -233,25 +229,32 @@ fun ProductsScreen(
                     item { Spacer(Modifier.height(8.dp)) }
                 }
 
-                // 4) Popup
+                // 4) Popup del producto seleccionado
                 if (showPopup && selectedProduct != null) {
                     val p = selectedProduct!!
+
                     ProductPopup(
                         isVisible = true,
                         product = p,
                         onDismiss = { showPopup = false },
                         onAddToCart = {
-                            onAddClick(p)
-                            showPopup = false
+                            cartViewModel.add(p)   // Añade al carrito desde el popup
+                            showPopup = true       // Mantenemos visible el popup para ver el cambio de texto
                         },
                         onBuyNow = {
-                            onAddClick(p)
+                            cartViewModel.add(p)   // Añade al carrito al comprar
                             showPopup = false
-                            navController.navigate("ShoppingCartScreen")
+                            navController.navigate("compra") {
+                                popUpTo("productos") { inclusive = true }
+                                launchSingleTop = true
+                            }
                         },
                         onGoToCart = {
                             showPopup = false
-                            navController.navigate("ShoppingCartScreen")
+                            navController.navigate("cesta") {
+                                popUpTo("productos") { inclusive = true }
+                                launchSingleTop = true
+                            }
                         }
                     )
                 }
@@ -260,12 +263,10 @@ fun ProductsScreen(
     }
 }
 
-
-
-
+/*
 @Preview(showBackground = true)
 @Composable
 private fun ProductsScreenPreview() {
     val nav = rememberNavController()
     ProductsScreen(navController = nav)
-}
+}*/
