@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -28,7 +29,7 @@ import com.example.reto1_dam_2025_26.userInt.screens.Thanks
 fun GestorVentanas() {
 
     val userViewModel: UserViewModel = viewModel()
-    val productViewModel: ProductViewModel = viewModel()
+    val productViewModel: ProductsViewModel = viewModel()
     val orderViewModel: OrderViewModel = viewModel()
 
     val isLoggedIn = remember { mutableStateOf(true) }
@@ -37,12 +38,11 @@ fun GestorVentanas() {
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val navController = rememberNavController()
-
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
-
+        containerColor = MaterialTheme.colorScheme.background,    // ← fondo global correcto
         topBar = {
             TopAppBar(
                 modifier = if (isLandscape) Modifier.height(70.dp) else Modifier,
@@ -55,8 +55,7 @@ fun GestorVentanas() {
                         painter = painterResource(id = R.drawable.logo),
                         contentDescription = "Logo Mercado de la Ribera",
                         contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .height(70.dp)
+                        modifier = Modifier.height(56.dp) // altura típica de appbar
                     )
                 },
                 actions = {
@@ -70,7 +69,7 @@ fun GestorVentanas() {
                     if (actionText.isNotEmpty()) {
                         Text(
                             text = actionText,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onSecondary,
                             modifier = Modifier.padding(end = 16.dp),
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -82,19 +81,19 @@ fun GestorVentanas() {
             BottomNavBar(navController, isLoggedIn.value, isLandscape)
         }
     ) { innerPadding ->
-        Column(
+        NavHost(
+            navController = navController,
+            startDestination = "info",
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.primary)
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp, vertical = 30.dp)
+                .fillMaxSize()
+                .padding(innerPadding) // solo respetar top/bottom bar
         ) {
-            NavHost(navController = navController, startDestination = "info") {
-                composable("info") { InfoScreen(navController) }
-                composable("productos") { ProductsScreen(navController) }
-                composable("cesta") { ShoppingCartScreen(navController) }
-                composable("compra") { OrderScreen(navController) }
-                composable("gracias") {Thanks(navController)}
-            }
+            composable("info") { InfoScreen(navController) }
+            composable("productos") { ProductsScreen(navController) }
+            composable("cesta") { ShoppingCartScreen(navController) }
+            composable("compra") { OrderScreen(navController) }
+            composable("gracias") { Thanks(navController) }
         }
     }
 }
+

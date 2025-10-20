@@ -24,9 +24,10 @@ fun BottomNavBar(
     val currentRoute = navBackStackEntry?.destination?.route
 
     NavigationBar(
-        modifier = if (isLandscape) Modifier.height(60.dp) else Modifier,
-        containerColor = MaterialTheme.colorScheme.primaryContainer
-    ) {
+        modifier = if (isLandscape) Modifier.height(60.dp) else Modifier.height(80.dp),
+        containerColor = MaterialTheme.colorScheme.primary
+    )
+    {
         val navItems = listOf(
             NavItem("info", Icons.Default.Info, "Info"),
             NavItem("productos", Icons.Default.Menu, "Productos"),
@@ -52,9 +53,9 @@ fun BottomNavBar(
                 },
 
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.onSecondary,
+                    selectedIconColor = MaterialTheme.colorScheme.primaryContainer,
                     selectedTextColor = MaterialTheme.colorScheme.onSecondary,
-                    unselectedIconColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSecondary,
                     unselectedTextColor = MaterialTheme.colorScheme.primary,
                     indicatorColor = Color.Transparent
                 )
