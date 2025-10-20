@@ -6,11 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
-
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,20 +45,35 @@ private fun CategorySection(
     onAddClick: (Product) -> Unit = {},
     onOpen: (Product) -> Unit = {}
 ) {
+    val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
+    // Queremos 3 ítems visibles por "fila"
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val outerPadding = 16.dp * 2      // Padding lateral del LazyColumn (16 a cada lado)
+    val rowContentPadding = 2.dp * 2  // contentPadding horizontal (izq+der) del LazyRow
+    val itemSpacing = 16.dp           // espacio entre cards en LazyRow
+    val visibleColumns = 3
+    val totalSpacing = itemSpacing * (visibleColumns - 1)
+    val available = screenWidth - outerPadding - rowContentPadding - totalSpacing
+    val itemWidth = available / visibleColumns
+
     Column(modifier = modifier) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onBackground
+            style = typography.titleLarge,
+            color = colors.onBackground
         )
         Spacer(Modifier.height(12.dp))
+
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(itemSpacing),
             contentPadding = PaddingValues(horizontal = 2.dp)
         ) {
             items(count = products.size, key = { i -> products[i].id }) { i ->
-                ProductPill(
+                ProductCard(
                     product = products[i],
+                    modifier = Modifier.width(itemWidth), // 👈 ancho calculado
                     onAddClick = onAddClick,
                     onOpen = onOpen
                 )
@@ -68,60 +83,81 @@ private fun CategorySection(
 }
 
 @Composable
-private fun ProductPill(
+private fun ProductCard(
     product: Product,
+    modifier: Modifier = Modifier,
     onAddClick: (Product) -> Unit,
     onOpen: (Product) -> Unit
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(IntrinsicSize.Min)
+    Card(
+        modifier = modifier
+            .clickable { onOpen(product) },
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Card(
-            shape = CircleShape,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
-            modifier = Modifier.clickable { onOpen(product) } // abre popup
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(12.dp)
         ) {
+            // Imagen rectangular con bordes redondeados
             if (product.imageUrl.isNotBlank()) {
                 AsyncImage(
                     model = product.imageUrl,
                     contentDescription = product.name,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
+                        .height(100.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
                 )
             } else {
                 Image(
                     painter = painterResource(R.drawable.outline_add_shopping_cart_24),
                     contentDescription = product.name,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
+                        .height(100.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
                 )
             }
-        }
 
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = product.name,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = money(product.price),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Spacer(Modifier.height(6.dp))
-        FilledTonalButton(onClick = { onAddClick(product) }) { Text("Añadir") }
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = product.name,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = money(product.price),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            //Spacer(Modifier.height(6.dp))
+//
+            //FilledTonalButton(
+            //    onClick = { onAddClick(product) },
+            //    modifier = Modifier
+            //        .fillMaxWidth()
+            //        .height(36.dp)
+            //) {
+            //    Text("Añadir")
+            //}
+        }
     }
 }
+
+
 
 // ==== Pantalla ====
 @Composable
@@ -261,62 +297,6 @@ fun ProductsScreen(
     }
 }
 
-//  Un componente para cada categoría (Carne, Pescado, etc.)
-@Composable
-fun CategoryRow(
-    title: String,
-    products: List<Product>,
-    onAddClick: (Product) -> Unit,
-    onGoToCart: () -> Unit
-) {
-    // Estado local del popup por fila/categoría
-    var showPopup by remember { mutableStateOf(false) }
-    var selectedProduct by remember { mutableStateOf<Product?>(null) }
-
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleLarge,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-    Spacer(modifier = Modifier.height(8.dp))
-
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        items(products.size) { index ->
-            val p = products[index]
-            ProductPill(
-                product = p,
-                onAddClick = onAddClick,
-                onOpen = { prod ->
-                    selectedProduct = prod
-                    showPopup = true
-                }
-            )
-        }
-    }
-
-    // Popup local a esta fila
-    if (showPopup && selectedProduct != null) {
-        val p = selectedProduct!!
-        ProductPopup(
-            isVisible = true,
-            product = p,
-            onDismiss = { showPopup = false },
-            onAddToCart = {
-                onAddClick(p)
-                showPopup = false
-            },
-            onBuyNow = {
-                onAddClick(p)
-                showPopup = false
-                onGoToCart()
-            },
-            onGoToCart = {
-                showPopup = false
-                onGoToCart()
-            }
-        )
-    }
-}
 
 
 @Preview(showBackground = true)
