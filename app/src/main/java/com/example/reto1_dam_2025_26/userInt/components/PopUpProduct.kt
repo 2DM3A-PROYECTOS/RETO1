@@ -13,13 +13,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -27,19 +29,10 @@ import com.example.reto1_dam_2025_26.R
 import com.example.reto1_dam_2025_26.data.model.Product
 import java.text.NumberFormat
 import java.util.Locale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 
-// --- Formateo de precios ---
 private val currencyLocale = Locale.forLanguageTag("es-ES")
 private fun money(v: Double) = NumberFormat.getCurrencyInstance(currencyLocale).format(v)
 
-/**
- * Popup de producto con diseño limpio:
- * - Card blanca (usa theme.surface)
- * - Texto oscuro (usa theme.onSurface)
- * - Botones adaptados al tema
- */
 @Composable
 fun ProductPopup(
     isVisible: Boolean,
@@ -53,10 +46,12 @@ fun ProductPopup(
     val colors = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
+    var addedToCart by remember(isVisible) { mutableStateOf(false) }
+
     AnimatedVisibility(
-        visible = isVisible, //  Solo se muestra si isVisible = true
-        enter = fadeIn(), //  Animación de aparición
-        exit = fadeOut() //  Animación de desaparición
+        visible = isVisible,
+        enter = fadeIn(),
+        exit = fadeOut()
     ) {
         Box(
             modifier = Modifier
@@ -67,114 +62,97 @@ fun ProductPopup(
         ) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth(0.94f)          // algo de margen lateral
-                    .wrapContentHeight()           // altura según contenido
-                    .heightIn(max = 600.dp)        // tope de altura (ajusta si quieres)
+                    .fillMaxWidth(0.94f)
+                    .wrapContentHeight()
                     .clip(RoundedCornerShape(24.dp)),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            )
-            {
-                Box(modifier = Modifier.fillMaxSize()) {
+                colors = CardDefaults.cardColors(containerColor = colors.surface)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 20.dp, vertical = 24.dp)
+                ) {
+                    ProductImage(
+                        imageUrl = product.imageUrl,
+                        placeholderRes = placeholderRes,
+                        height = 180.dp
+                    )
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 20.dp, vertical = 24.dp)
-                            .verticalScroll(rememberScrollState())
-                    ) {
-                        // Imagen del producto
-                        ProductImage(
-                            imageUrl = product.imageUrl,
-                            placeholderRes = placeholderRes,
-                            height = 180.dp  // antes 200dp
+                    Spacer(Modifier.height(20.dp))
+
+                    Text(
+                        text = product.name,
+                        style = typography.titleLarge.copy(
+                            color = colors.onSurface,
+                            fontWeight = FontWeight.SemiBold
                         )
+                    )
 
-
-                        Spacer(Modifier.height(20.dp))
-
-                        // Nombre del producto
-                        Text(
-                            text = product.name,
-                            style = typography.titleLarge.copy(
-                                color = colors.onSurface,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        )
-
-                        // Categoría (badge)
-                        if (product.category.isNotBlank()) {
-                            Spacer(Modifier.height(6.dp))
-                            CategoryBadge(
-                                text = product.category,
-                                backgroundColor = colors.secondaryContainer,
-                                textColor = colors.onSecondaryContainer
-                            )
-                        }
-
-                        // Descripción
-                        if (product.description.isNotBlank()) {
-                            Spacer(Modifier.height(12.dp))
-                            Text(
-                                text = product.description,
-                                style = typography.bodyMedium.copy(
-                                    color = colors.onSurfaceVariant,
-                                    lineHeight = 20.sp
-                                )
-                            )
-                        }
-
-                        // Precio principal
-                        Spacer(Modifier.height(20.dp))
-                        Text(
-                            text = money(product.price),
-                            style = typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = colors.primary
-                            )
-                        )
-
-                        // Detalles secundarios (stock, tienda)
-                        Spacer(Modifier.height(8.dp))
-                        if (product.stock > 0) {
-                            Text(
-                                text = "Stock disponible: ${product.stock}",
-                                style = typography.labelLarge.copy(color = colors.onSurfaceVariant)
-                            )
-                        } else {
-                            Text(
-                                text = "Sin stock disponible",
-                                style = typography.labelLarge.copy(color = colors.error)
-                            )
-                        }
-
-                        if (product.storeName.isNotBlank()) {
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = "Tienda: ${product.storeName}",
-                                style = typography.labelLarge.copy(color = colors.onSurfaceVariant)
-                            )
-                        }
-
-                        Spacer(Modifier.height(80.dp)) // espacio para los botones inferiores
-                    }
-
-                    // Botones inferiores
-
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(horizontal = 20.dp, vertical = 16.dp)
-                    ) {
-                        ActionButtons(
-                            onAddToCart = onAddToCart,
-                            onBuyNow = onBuyNow,
-                            onGoToCart = onGoToCart
+                    if (product.category.isNotBlank()) {
+                        Spacer(Modifier.height(6.dp))
+                        CategoryBadge(
+                            text = product.category,
+                            backgroundColor = colors.secondaryContainer,
+                            textColor = colors.onSecondaryContainer
                         )
                     }
+
+                    if (product.description.isNotBlank()) {
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            text = product.description,
+                            style = typography.bodyMedium.copy(
+                                color = colors.onSurfaceVariant,
+                                lineHeight = 20.sp
+                            )
+                        )
+                    }
+
+                    Spacer(Modifier.height(20.dp))
+                    Text(
+                        text = money(product.price),
+                        style = typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = colors.primary
+                        )
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+                    if (product.stock > 0) {
+                        Text(
+                            text = "Stock disponible: ${product.stock}",
+                            style = typography.labelLarge.copy(color = colors.onSurfaceVariant)
+                        )
+                    } else {
+                        Text(
+                            text = "Sin stock disponible",
+                            style = typography.labelLarge.copy(color = colors.error)
+                        )
+                    }
+
+                    if (product.storeName.isNotBlank()) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = "Tienda: ${product.storeName}",
+                            style = typography.labelLarge.copy(color = colors.onSurfaceVariant)
+                        )
+                    }
+
+                    Spacer(Modifier.height(24.dp))
+
+                    // ✅ Ahora los botones están dentro del scroll
+                    ActionButtons(
+                        onAddToCart = {
+                            onAddToCart()
+                            addedToCart = true
+                        },
+                        onBuyNow = onBuyNow,
+                        onGoToCart = onGoToCart,
+                        addedToCart = addedToCart
+                    )
                 }
             }
-
-            // Botón de cerrar (en esquina superior)
 
             IconButton(
                 onClick = onDismiss,
@@ -194,6 +172,7 @@ fun ProductPopup(
     }
 }
 
+
 @Composable
 private fun ProductImage(
     imageUrl: String,
@@ -211,7 +190,6 @@ private fun ProductImage(
         Image(painter = painterResource(placeholderRes), contentDescription = null, contentScale = ContentScale.Crop, modifier = modifier)
     }
 }
-
 
 @Composable
 private fun CategoryBadge(
@@ -237,7 +215,8 @@ private fun CategoryBadge(
 fun ActionButtons(
     onAddToCart: () -> Unit,
     onBuyNow: () -> Unit,
-    onGoToCart: () -> Unit
+    onGoToCart: () -> Unit,
+    addedToCart: Boolean
 ) {
     val colors = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -253,13 +232,16 @@ fun ActionButtons(
             Button(
                 onClick = onAddToCart,
                 modifier = Modifier
-                    .weight(0.6f)
+                    .weight(0.4f)
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = colors.primaryContainer)
             ) {
                 Text(
-                    text = "Añadir al carrito",
-                    style = typography.labelLarge.copy(color = colors.onPrimaryContainer)
+                    text = if (addedToCart) "Añadido" else "A la cesta",
+                    style = typography.labelLarge.copy(
+                        color = colors.onPrimaryContainer,
+                        fontSize = 10.sp
+                        )
                 )
             }
 
@@ -272,7 +254,10 @@ fun ActionButtons(
             ) {
                 Text(
                     text = "Comprar",
-                    style = typography.labelLarge.copy(color = colors.onSecondary)
+                    style = typography.labelLarge.copy(
+                        color = colors.onSecondary,
+                        fontSize = 10.sp
+                    )
                 )
             }
         }
@@ -286,7 +271,10 @@ fun ActionButtons(
         ) {
             Text(
                 text = "Ir al carrito",
-                style = typography.labelLarge.copy(color = colors.onPrimaryContainer)
+                style = typography.labelLarge.copy(
+                    color = colors.onPrimaryContainer,
+                    fontSize = 10.sp
+                )
             )
         }
     }
