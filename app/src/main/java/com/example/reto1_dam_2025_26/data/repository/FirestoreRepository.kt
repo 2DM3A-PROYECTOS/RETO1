@@ -18,7 +18,11 @@ class FirestoreRepository {
     private val main = Handler(Looper.getMainLooper())
 
     // ---------- AUTH ----------
-    fun registerEmail(email: String, password: String, onResult: (Boolean, String?) -> Unit) {
+    fun registerEmail(
+        email: String,
+        password: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
         io.execute {
             try {
                 Tasks.await(auth.createUserWithEmailAndPassword(email, password))
@@ -27,10 +31,36 @@ class FirestoreRepository {
         }
     }
 
-    fun loginEmail(email: String, password: String, onResult: (Boolean, String?) -> Unit) {
+    fun loginEmail(
+        email: String,
+        password: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
         io.execute {
             try {
                 Tasks.await(auth.signInWithEmailAndPassword(email, password))
+                main.post { onResult(true, null) }
+            } catch (e: Exception) { main.post { onResult(false, e.message) } }
+        }
+    }
+
+    fun addUserManager(
+        email: String,
+        password: String,
+        username: String,
+        address: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        io.execute {
+            try {
+                val user = hashMapOf(
+                    "id" to (auth.currentUser?.uid ?: ""),
+                    "username" to username,
+                    "email" to email,
+                    "address" to address,
+                    "orders" to null
+                )
+                Tasks.await(db.collection("users").add(user))
                 main.post { onResult(true, null) }
             } catch (e: Exception) { main.post { onResult(false, e.message) } }
         }

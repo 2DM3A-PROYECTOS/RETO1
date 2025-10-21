@@ -5,8 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.reto1_dam_2025_26.ui.theme.Reto1_DAM_202526Theme
 import com.example.reto1_dam_2025_26.userInt.components.GestorVentanas
+import com.example.reto1_dam_2025_26.userInt.screens.AuthScreen
 
 
 /**
@@ -21,8 +26,16 @@ class MainActivity : ComponentActivity() {
             Reto1_DAM_202526Theme(dynamicColor = false) {
                 Surface {
                     //Es_Una_Prueba()
-                    //AuthScreen()
-                    GestorVentanas()
+                    var loggedIn by remember { mutableStateOf(false) }
+
+                    if (loggedIn) {
+                        GestorVentanas()
+                    } else {
+                        AuthScreen(
+                            onLoggedIn = { loggedIn = true }
+                        )
+                    }
+                    //GestorVentanas()
 
                 }
             }
