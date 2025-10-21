@@ -90,7 +90,7 @@ fun GestorVentanas() {
                 .padding(innerPadding) // solo respetar top/bottom bar
         ) {
             composable("info") { InfoScreen(navController) }
-            composable("productos") { ProductsScreen(navController, cartViewModel) }
+            composable("productos") { ProductsScreen(navController, cartViewModel, isLoggedIn) }
             composable("cesta") { ShoppingCartScreen(navController, cartViewModel ) }
             composable("compra") { OrderScreen(navController) }
             composable("gracias") { Thanks(navController) }

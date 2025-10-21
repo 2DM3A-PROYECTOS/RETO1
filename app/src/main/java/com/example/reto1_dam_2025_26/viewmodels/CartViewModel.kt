@@ -4,10 +4,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.reto1_dam_2025_26.data.model.Product
 
-// Esta clase NO se guarda en la base de datos
+// Clase para los elementos del carrito
 data class CartItem(
     val product: Product,
-    var qty: Int = 1
+    val qty: Int = 1
 )
 
 class CartViewModel : ViewModel() {
@@ -16,8 +16,13 @@ class CartViewModel : ViewModel() {
     val items: List<CartItem> get() = _items
 
     fun add(product: Product) {
-        val existing = _items.find { it.product.id == product.id }
-        if (existing != null) existing.qty++ else _items.add(CartItem(product))
+        val index = _items.indexOfFirst { it.product.id == product.id }
+        if (index != -1) {
+            val current = _items[index]
+            _items[index] = current.copy(qty = current.qty + 1)
+        } else {
+            _items.add(CartItem(product))
+        }
     }
 
     fun remove(productId: String) {
@@ -25,12 +30,23 @@ class CartViewModel : ViewModel() {
     }
 
     fun increase(productId: String) {
-        _items.find { it.product.id == productId }?.let { it.qty++ }
+        val index = _items.indexOfFirst { it.product.id == productId }
+        if (index != -1) {
+            val current = _items[index]
+            _items[index] = current.copy(qty = current.qty + 1)
+        }
     }
 
     fun decrease(productId: String) {
-        val item = _items.find { it.product.id == productId } ?: return
-        if (item.qty <= 1) _items.remove(item) else item.qty--
+        val index = _items.indexOfFirst { it.product.id == productId }
+        if (index != -1) {
+            val current = _items[index]
+            if (current.qty > 1) {
+                _items[index] = current.copy(qty = current.qty - 1)
+            } else {
+                _items.removeAt(index)
+            }
+        }
     }
 
     fun clear() = _items.clear()
