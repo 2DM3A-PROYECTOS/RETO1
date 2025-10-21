@@ -41,6 +41,7 @@ fun ProductPopup(
     onAddToCart: () -> Unit,
     onBuyNow: () -> Unit,
     onGoToCart: () -> Unit,
+    isLoggedIn: Boolean,
     placeholderRes: Int = R.drawable.outline_add_shopping_cart_24
 ) {
     val colors = MaterialTheme.colorScheme
@@ -149,7 +150,8 @@ fun ProductPopup(
                         },
                         onBuyNow = onBuyNow,
                         onGoToCart = onGoToCart,
-                        addedToCart = addedToCart
+                        addedToCart = addedToCart,
+                        isLoggedIn = isLoggedIn
                     )
                 }
             }
@@ -216,7 +218,8 @@ fun ActionButtons(
     onAddToCart: () -> Unit,
     onBuyNow: () -> Unit,
     onGoToCart: () -> Unit,
-    addedToCart: Boolean
+    addedToCart: Boolean,
+    isLoggedIn: Boolean
 ) {
     val colors = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -231,6 +234,7 @@ fun ActionButtons(
         ) {
             Button(
                 onClick = onAddToCart,
+                enabled = isLoggedIn,
                 modifier = Modifier
                     .weight(0.4f)
                     .height(50.dp),
@@ -247,6 +251,7 @@ fun ActionButtons(
 
             Button(
                 onClick = onBuyNow,
+                enabled = isLoggedIn,
                 modifier = Modifier
                     .weight(0.4f)
                     .height(50.dp),
@@ -264,6 +269,7 @@ fun ActionButtons(
 
         Button(
             onClick = onGoToCart,
+            enabled = isLoggedIn,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

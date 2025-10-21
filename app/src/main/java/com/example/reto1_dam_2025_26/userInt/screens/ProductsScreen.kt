@@ -11,6 +11,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -143,25 +144,17 @@ private fun ProductCard(
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.fillMaxWidth()
             )
-
-            //Spacer(Modifier.height(6.dp))
-//
-            //FilledTonalButton(
-            //    onClick = { onAddClick(product) },
-            //    modifier = Modifier
-            //        .fillMaxWidth()
-            //        .height(36.dp)
-            //) {
-            //    Text("Añadir")
-            //}
         }
     }
 }
 
+
+
 @Composable
 fun ProductsScreen(
     navController: NavController,
-    cartViewModel: CartViewModel
+    cartViewModel: CartViewModel,
+    isLoggedIn: MutableState<Boolean>
 ) {
     // 1) Obtener VM de productos y estado
     val vm: ProductsViewModel = viewModel()
@@ -255,18 +248,11 @@ fun ProductsScreen(
                                 popUpTo("productos") { inclusive = true }
                                 launchSingleTop = true
                             }
-                        }
+                        },
+                        isLoggedIn = isLoggedIn.value
                     )
                 }
             }
         }
     }
 }
-
-/*
-@Preview(showBackground = true)
-@Composable
-private fun ProductsScreenPreview() {
-    val nav = rememberNavController()
-    ProductsScreen(navController = nav)
-}*/
