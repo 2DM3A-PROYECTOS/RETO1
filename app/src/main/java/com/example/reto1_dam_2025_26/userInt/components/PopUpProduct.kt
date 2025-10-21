@@ -13,7 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,126 +21,195 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.reto1_dam_2025_26.R
-import com.example.reto1_dam_2025_26.userInt.screens.Product
+import com.example.reto1_dam_2025_26.data.model.Product
+import java.text.NumberFormat
+import java.util.Locale
+
+private val currencyLocale = Locale.forLanguageTag("es-ES")
+private fun money(v: Double) = NumberFormat.getCurrencyInstance(currencyLocale).format(v)
 
 @Composable
 fun ProductPopup(
-    isVisible: Boolean, //  Controla si el popup se ve o
-    product: Product? = null, // el producto selecionado
-    onDismiss: () -> Unit, //  Acción al cerrar el popup (normalmente ocultarlo)
-    onAddToCart: () -> Unit, //  Acción al pulsar "Añadir a carrito"
-    onBuyNow: () -> Unit,  //  Acción al pulsar "Comprar ahora"
-    onGoToCart: () -> Unit //  Acción al pulsar "Ir al carrito"
+    isVisible: Boolean,
+    product: Product,
+    onDismiss: () -> Unit,
+    onAddToCart: () -> Unit,
+    onBuyNow: () -> Unit,
+    onGoToCart: () -> Unit,
+    isLoggedIn: Boolean,
+    placeholderRes: Int = R.drawable.outline_add_shopping_cart_24
 ) {
+    val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
+    var addedToCart by remember(isVisible) { mutableStateOf(false) }
+
     AnimatedVisibility(
-        visible = isVisible, //  Solo se muestra si isVisible = true
-        enter = fadeIn(), //  Animación de aparición
-        exit = fadeOut() //  Animación de desaparición
+        visible = isVisible,
+        enter = fadeIn(),
+        exit = fadeOut()
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.5f))  //  Fondo oscuro semitransparente
+                .background(colors.onBackground.copy(alpha = 0.5f))
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            // El cuadro del popup (tarjeta principal)
             Card(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.85f)
-                    .clip(RoundedCornerShape(28.dp)),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF36C5C))
+                    .fillMaxWidth(0.94f)
+                    .wrapContentHeight()
+                    .clip(RoundedCornerShape(24.dp)),
+                colors = CardDefaults.cardColors(containerColor = colors.surface)
             ) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 20.dp, vertical = 24.dp)
-                            .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        //Url del imagen
-                        AsyncImage(
-                            model = product?.imageUrl?:"https://img.freepik.com/vector-gratis/ilustracion-vectorial-diseno-grafico_24908-54512.jpg",
-                            contentDescription = product?.name?: "Imagen del producto",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .height(200.dp)
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(20.dp))
-                        )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 20.dp, vertical = 24.dp)
+                ) {
+                    ProductImage(
+                        imageUrl = product.imageUrl,
+                        placeholderRes = placeholderRes,
+                        height = 180.dp
+                    )
 
-                        Spacer(modifier = Modifier.height(16.dp))
-                        //Nombre del producto
+                    Spacer(Modifier.height(20.dp))
+
+                    Text(
+                        text = product.name,
+                        style = typography.titleLarge.copy(
+                            color = colors.onSurface,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+
+                    if (product.category.isNotBlank()) {
+                        Spacer(Modifier.height(6.dp))
+                        CategoryBadge(
+                            text = product.category,
+                            backgroundColor = colors.secondaryContainer,
+                            textColor = colors.onSecondaryContainer
+                        )
+                    }
+
+                    if (product.description.isNotBlank()) {
+                        Spacer(Modifier.height(12.dp))
                         Text(
-                            text = product?.name ?:"Nombre no disponible",
-                            fontSize = 24.sp,
+                            text = product.description,
+                            style = typography.bodyMedium.copy(
+                                color = colors.onSurfaceVariant,
+                                lineHeight = 20.sp
+                            )
+                        )
+                    }
+
+                    Spacer(Modifier.height(20.dp))
+                    Text(
+                        text = money(product.price),
+                        style = typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            textAlign = TextAlign.Center
+                            color = colors.primary
                         )
+                    )
 
-                        Spacer(modifier = Modifier.height(8.dp))
-                        //Descripción genérica
+                    Spacer(Modifier.height(8.dp))
+                    if (product.stock > 0) {
                         Text(
-                            text =  "Producto de excelente calidad, disponible en nuestra tienda.",
-                            fontSize = 16.sp,
-                            color = Color.White.copy(alpha = 0.9f),
-                            textAlign = TextAlign.Center
+                            text = "Stock disponible: ${product.stock}",
+                            style = typography.labelLarge.copy(color = colors.onSurfaceVariant)
                         )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-                        //Precio del producto
+                    } else {
                         Text(
-                            text = product?.price ?:"-",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White
+                            text = "Sin stock disponible",
+                            style = typography.labelLarge.copy(color = colors.error)
                         )
-
-                        Spacer(modifier = Modifier.height(80.dp)) // место для кнопок
                     }
 
-                    // ActionButtons siempre abajo
-                    //Los botones (añadir, comprar, ir al carrito)
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(horizontal = 20.dp, vertical = 16.dp)
-                    ) {
-                        ActionButtons(
-                            onAddToCart = onAddToCart,
-                            onBuyNow = onBuyNow,
-                            onGoToCart = onGoToCart
+                    if (product.storeName.isNotBlank()) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = "Tienda: ${product.storeName}",
+                            style = typography.labelLarge.copy(color = colors.onSurfaceVariant)
                         )
                     }
+
+                    Spacer(Modifier.height(24.dp))
+
+                    // ✅ Ahora los botones están dentro del scroll
+                    ActionButtons(
+                        onAddToCart = {
+                            onAddToCart()
+                            addedToCart = true
+                        },
+                        onBuyNow = onBuyNow,
+                        onGoToCart = onGoToCart,
+                        addedToCart = addedToCart,
+                        isLoggedIn = isLoggedIn
+                    )
                 }
             }
-            //  Botón de cerrar (la “X”)
+
             IconButton(
                 onClick = onDismiss,
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .offset(x = 8.dp, y = 8.dp)
                     .size(36.dp)
-                    .background(
-                        color = Color.White.copy(alpha = 0.25f),
-                        shape = RoundedCornerShape(50)
-                    )
+                    .background(colors.primary.copy(alpha = 0.15f), RoundedCornerShape(50))
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Cerrar",
-                    tint = Color.White
+                    tint = colors.onPrimaryContainer
                 )
             }
         }
+    }
+}
+
+
+@Composable
+private fun ProductImage(
+    imageUrl: String,
+    placeholderRes: Int,
+    height: Dp = 180.dp
+) {
+    val modifier = Modifier
+        .height(height)
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(20.dp))
+
+    if (imageUrl.isNotBlank()) {
+        AsyncImage(model = imageUrl, contentDescription = null, contentScale = ContentScale.Crop, modifier = modifier)
+    } else {
+        Image(painter = painterResource(placeholderRes), contentDescription = null, contentScale = ContentScale.Crop, modifier = modifier)
+    }
+}
+
+@Composable
+private fun CategoryBadge(
+    text: String,
+    backgroundColor: Color,
+    textColor: Color
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(backgroundColor)
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = text,
+            color = textColor,
+            style = MaterialTheme.typography.labelLarge
+        )
     }
 }
 
@@ -148,8 +217,13 @@ fun ProductPopup(
 fun ActionButtons(
     onAddToCart: () -> Unit,
     onBuyNow: () -> Unit,
-    onGoToCart: () -> Unit
+    onGoToCart: () -> Unit,
+    addedToCart: Boolean,
+    isLoggedIn: Boolean
 ) {
+    val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -160,47 +234,53 @@ fun ActionButtons(
         ) {
             Button(
                 onClick = onAddToCart,
+                enabled = isLoggedIn,
                 modifier = Modifier
-                    .weight(0.6f)
+                    .weight(0.4f)
                     .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                colors = ButtonDefaults.buttonColors(containerColor = colors.primaryContainer)
             ) {
                 Text(
-                    text = "Añadir a carrito",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFFF36C5C)
+                    text = if (addedToCart) "Añadido" else "A la cesta",
+                    style = typography.labelLarge.copy(
+                        color = colors.onPrimaryContainer,
+                        fontSize = 10.sp
+                        )
                 )
             }
 
             Button(
                 onClick = onBuyNow,
+                enabled = isLoggedIn,
                 modifier = Modifier
                     .weight(0.4f)
                     .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF534F))
+                colors = ButtonDefaults.buttonColors(containerColor = colors.secondary)
             ) {
                 Text(
                     text = "Comprar",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White
+                    style = typography.labelLarge.copy(
+                        color = colors.onSecondary,
+                        fontSize = 10.sp
+                    )
                 )
             }
         }
 
         Button(
             onClick = onGoToCart,
+            enabled = isLoggedIn,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+            colors = ButtonDefaults.buttonColors(containerColor = colors.primaryContainer)
         ) {
             Text(
-                text = "Ir a carrito",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color(0xFFF36C5C)
+                text = "Ir al carrito",
+                style = typography.labelLarge.copy(
+                    color = colors.onPrimaryContainer,
+                    fontSize = 10.sp
+                )
             )
         }
     }

@@ -1,180 +1,258 @@
 package com.example.reto1_dam_2025_26.userInt.screens
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.reto1_dam_2025_26.R
+import com.example.reto1_dam_2025_26.data.model.Product
 import com.example.reto1_dam_2025_26.userInt.components.ProductPopup
+import java.text.NumberFormat
+import java.util.Locale
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.reto1_dam_2025_26.viewmodels.ProductsViewModel
+import com.example.reto1_dam_2025_26.viewmodels.CartViewModel
 
-//  Modelo de datos para los productos
-data class Product(
-    val name: String,
-    val price: String,
-    val imageUrl: String //he puesto los imagenes en string para poder meter el enlace
-)
+// ==== Helpers ====
+private val currencyLocale = Locale.forLanguageTag("es-ES")
+private fun money(v: Double) = NumberFormat.getCurrencyInstance(currencyLocale).format(v)
+
+// ==== UI reusables ====
+@Composable
+private fun CategorySection(
+    title: String,
+    products: List<Product>,
+    modifier: Modifier = Modifier,
+    onAddClick: (Product) -> Unit = {},
+    onOpen: (Product) -> Unit = {}
+) {
+    val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
+    // Queremos 3 ítems visibles por "fila"
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val outerPadding = 16.dp * 2      // Padding lateral del LazyColumn (16 a cada lado)
+    val rowContentPadding = 2.dp * 2  // contentPadding horizontal (izq+der) del LazyRow
+    val itemSpacing = 16.dp           // espacio entre cards en LazyRow
+    val visibleColumns = 3
+    val totalSpacing = itemSpacing * (visibleColumns - 1)
+    val available = screenWidth - outerPadding - rowContentPadding - totalSpacing
+    val itemWidth = available / visibleColumns
+
+    Column(modifier = modifier) {
+        Text(
+            text = title,
+            style = typography.titleLarge,
+            color = colors.onBackground
+        )
+        Spacer(Modifier.height(12.dp))
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(itemSpacing),
+            contentPadding = PaddingValues(horizontal = 2.dp)
+        ) {
+            items(count = products.size, key = { i -> products[i].id }) { i ->
+                ProductCard(
+                    product = products[i],
+                    modifier = Modifier.width(itemWidth), // 👈 ancho calculado
+                    onAddClick = onAddClick,
+                    onOpen = onOpen
+                )
+            }
+        }
+    }
+}
 
 @Composable
-fun ProductsScreen(navController: NavController) {
+private fun ProductCard(
+    product: Product,
+    modifier: Modifier = Modifier,
+    onAddClick: (Product) -> Unit,
+    onOpen: (Product) -> Unit
+) {
+    Card(
+        modifier = modifier
+            .clickable { onOpen(product) },
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(12.dp)
+        ) {
+            // Imagen rectangular con bordes redondeados
+            if (product.imageUrl.isNotBlank()) {
+                AsyncImage(
+                    model = product.imageUrl,
+                    contentDescription = product.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .height(100.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                )
+            } else {
+                Image(
+                    painter = painterResource(R.drawable.outline_add_shopping_cart_24),
+                    contentDescription = product.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .height(100.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = product.name,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = money(product.price),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+
+
+@Composable
+fun ProductsScreen(
+    navController: NavController,
+    cartViewModel: CartViewModel,
+    isLoggedIn: MutableState<Boolean>
+) {
+    // 1) Obtener VM de productos y estado
+    val vm: ProductsViewModel = viewModel()
+    val ui = vm.uiState.collectAsState().value
+
+    // 2) Estado del popup
     var showPopup by remember { mutableStateOf(false) }
     var selectedProduct by remember { mutableStateOf<Product?>(null) }
 
-    //  Listas de productos (puedes añadir más fácilmente)
-    val carnes = listOf(
-        Product("Filete de lomo", "10$", "https://nanafood.es/wp-content/uploads/2022/03/filete-lomo-cerdo-organico-nana-food-web.jpg"),
-        Product("Chuletillas de cordero", "8$", "https://bistrobadia.de/wp-content/uploads/2024/04/lammkotelett-13.jpg"),
-        Product("chorizo", "7.5$", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRieCUzOiCOF3d1ZsgdqiAvTQAL-z3I7jD2aw&s"),
-        Product("Pechuga de pollo", "6$", "https://mejorconsalud.as.com/wp-content/uploads/2018/04/dos-pechugas-de-pollo.jpg?auto=webp&quality=7500&width=1920&crop=16:9,smart,safe&format=webp&optimize=medium&dpr=2&fit=cover&fm=webp&q=75&w=1920&h=1080"),
-        Product("Chuleton", "64.5$", "https://tienda.hostalrioara.com/wp-content/uploads/2020/06/chuleton-de-ternera.jpg")
-
-    )
-
-    val pescados = listOf(
-        Product("Merluza", "11.5", "https://imag.bonviveur.com/merluza-a-la-plancha.jpg"),
-        Product("Bacalao", "10.5$", "https://www.lavanguardia.com/files/image_449_220/files/fp/uploads/2020/08/12/5f33f6624d0ca.r_d.2788-2025-916.jpeg"),
-        Product("Bonito", "12$", "https://www.conxemar.com/wp-content/uploads/2022/12/sarda_chiliensis_el.jpeg"),
-        Product("Salmon", "15.8$", "https://pescadosymariscos.consumer.es/sites/pescadosymariscos/files/styles/pagina_cabecera_desktop/public/2025-05/salmon_0.webp?h=6b0af028&itok=EtLAz0gR"),
-        Product("Sardinas", "11.6$", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-2_1bEhTT5u2DkJa9pybOt1QXVL2IKAVftg&s")
-
-    )
-
-    val bebidas = listOf(
-        Product("Zumo de naranja", "5.6$", "https://www.dia.es/product_images/50690/50690_ISO_0_ES.jpg"),
-        Product("Coca Cola", "2.2", "https://tucervezaadomicilio.com/wp-content/uploads/2020/07/lata-coca-cola.jpg"),
-        Product("Red bool", "3.1$", "https://www.dia.es/product_images/87367/87367_ISO_0_ES.jpg"),
-        Product("Agua", "1.5$", "https://m.media-amazon.com/images/I/61mTu-foNxL.jpg"),
-        Product("Pepsi", "2.1$", "https://www.confisur.es/865-medium_default/pepsi-cola-lata-33cl.jpg")
-
-    )
-    val pasteles = listOf(
-        Product("Pastel vasco", "24$", "https://labasedelapasteleria.com/wp-content/uploads/pastel-vasco-tradicional-como-hacer.jpg"),
-        Product("Tarta Pepisandwich", "31.5$", "https://www.pepinapastel.es/wp-content/uploads/2023/06/Tarta-sandwich-1-Cuad-scaled.jpg"),
-        Product("tarta de queso", "8$", "https://i.blogs.es/6ad7a5/tarta-de-queso-philadelphia2/450_1000.jpg"),
-        Product("Caja Pepiboms", "9.6$", "https://www.pepinapastel.es/wp-content/uploads/2020/11/PB3-C-scaled.jpg"),
-        Product("Tarta Explosion de chocolate", "5.9$", "https://albayzin2020.com/wp-content/uploads/2021/07/20-scaled.jpg")
-    )
-
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            item {
-                CategoryRow("Carne", carnes) { product ->
-                    selectedProduct = product
-                    showPopup = true
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        when {
+            ui.loading -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                CategoryRow("Pescado", pescados) { product ->
-                    selectedProduct = product
-                    showPopup = true
+            }
+
+            ui.error != null -> {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Error al cargar productos:\n${ui.error}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    FilledTonalButton(onClick = { vm.load() }) { Text("Reintentar") }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                CategoryRow("Bebidas", bebidas) { product ->
-                    selectedProduct = product
-                    showPopup = true
+            }
+
+            ui.categories.isEmpty() -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No hay productos disponibles.")
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                CategoryRow("Pasteles", pasteles) { product ->
-                    selectedProduct = product
-                    showPopup = true
+            }
+
+            else -> {
+                // 3) Mostrar categorías y productos
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    ui.categories.forEach { (title, list) ->
+                        item {
+                            CategorySection(
+                                title = title,
+                                products = list,
+                                onAddClick = { product ->
+                                    cartViewModel.add(product) // añade al carrito
+                                },
+                                onOpen = { p ->
+                                    selectedProduct = p
+                                    showPopup = true
+                                }
+                            )
+                        }
+                    }
+                    item { Spacer(Modifier.height(8.dp)) }
+                }
+
+                // 4) Popup del producto seleccionado
+                if (showPopup && selectedProduct != null) {
+                    val p = selectedProduct!!
+
+                    ProductPopup(
+                        isVisible = true,
+                        product = p,
+                        onDismiss = { showPopup = false },
+                        onAddToCart = {
+                            cartViewModel.add(p)   // Añade al carrito desde el popup
+                            showPopup = true       // Mantenemos visible el popup para ver el cambio de texto
+                        },
+                        onBuyNow = {
+                            cartViewModel.add(p)   // Añade al carrito al comprar
+                            showPopup = false
+                            navController.navigate("compra") {
+                                popUpTo("productos") { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
+                        onGoToCart = {
+                            showPopup = false
+                            navController.navigate("cesta") {
+                                popUpTo("productos") { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
+                        isLoggedIn = isLoggedIn.value
+                    )
                 }
             }
         }
-
-// Muestra el popup solo cuando hay producto seleccionado
-        if (showPopup && selectedProduct != null) {
-            val p = selectedProduct!!
-            ProductPopup(
-                isVisible = true,
-                product = p,
-                onDismiss = { showPopup = false },
-                onAddToCart = {
-                    onAddClick(p)
-                    showPopup = false
-                },
-                onBuyNow = {
-                    onAddClick(p)
-                    showPopup = false
-                    navController.navigate("ShoppingCartScreen")
-                },
-                onGoToCart = {
-                    showPopup = false
-                    navController.navigate("ShoppingCartScreen")
-                }
-            )
-        }
-
-    }
-}
-
-//  Un componente para cada categoría (Carne, Pescado, etc.)
-@Composable
-fun CategoryRow(
-    title: String,
-    products: List<Product>,
-    onAddClick: (Product) -> Unit,
-    onGoToCart: () -> Unit
-) {
-    // Estado local del popup por fila/categoría
-    var showPopup by remember { mutableStateOf(false) }
-    var selectedProduct by remember { mutableStateOf<Product?>(null) }
-
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleLarge,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-    Spacer(modifier = Modifier.height(8.dp))
-
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        items(products.size) { index ->
-            val p = products[index]
-            ProductPill(
-                product = p,
-                onAddClick = onAddClick,
-                onOpen = { prod ->
-                    selectedProduct = prod
-                    showPopup = true
-                }
-            )
-        }
-    }
-}
-
-// 🔹 Un componente reutilizable para cada producto
-@Composable
-fun ProductItem(product: Product, onClick: () -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        AsyncImage(
-            model = product.imageUrl, //Url de la imagen
-            contentDescription = product.name,
-            modifier = Modifier
-                .clip(CircleShape)
-                .border(1.5.dp, MaterialTheme.colorScheme.primary)
-                .size(100.dp)
-                .clickable { onClick() }
-        )
-        Text(text = product.name, color = Color.Black)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = product.price, color = Color.Black)
     }
 }

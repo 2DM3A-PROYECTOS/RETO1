@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.animation.core.lint)
     implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.material3)
     //implementation(libs.firebase.firestore.ktx)
     //implementation(libs.androidx.material3)
     testImplementation(libs.junit)
