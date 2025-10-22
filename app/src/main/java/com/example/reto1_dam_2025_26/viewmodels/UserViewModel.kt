@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 data class AuthUiState(
+    val id: String = "",
     val username: String = "",
     val email: String = "",
     val address: String = "",
@@ -60,6 +61,7 @@ class UserViewModel(
                         repo.getUserData(uid) { data, dataError ->
                             _uiState.value = if (data != null) {
                                 _uiState.value.copy(
+                                    id = data["id"] as? String ?: "",
                                     username = data["username"] as? String ?: "",
                                     address = data["address"] as? String ?: "",
                                     email = data["email"] as? String ?: "",
