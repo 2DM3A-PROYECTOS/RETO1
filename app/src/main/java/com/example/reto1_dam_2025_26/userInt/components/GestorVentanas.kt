@@ -93,7 +93,7 @@ fun GestorVentanas() {
             composable("info") { InfoScreen(navController) }
             composable("productos") { ProductsScreen(navController, cartViewModel, isLoggedIn) }
             composable("cesta") { ShoppingCartScreen(navController, cartViewModel ) }
-            composable("compra") { OrderScreen(navController, cartViewModel, userViewModel) }
+            composable("compra") { OrderScreen(navController, cartViewModel, userViewModel, orderViewModel) }
             composable("gracias") { Thanks(navController) }
         }
     }

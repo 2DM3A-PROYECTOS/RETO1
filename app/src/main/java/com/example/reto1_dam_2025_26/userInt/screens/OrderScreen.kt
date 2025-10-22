@@ -54,6 +54,9 @@ import com.example.reto1_dam_2025_26.viewmodels.UserViewModel
 import java.text.NumberFormat
 import java.util.Locale
 import androidx.compose.runtime.collectAsState
+import com.example.reto1_dam_2025_26.data.model.OrderItem
+import com.example.reto1_dam_2025_26.viewmodels.CartItem
+import com.example.reto1_dam_2025_26.viewmodels.OrderViewModel
 
 // -------------------------
 // HELPERS
@@ -152,7 +155,8 @@ private fun PaymentCard(method: String) {
 fun OrderScreen(
     navController: NavController,
     cartViewModel: CartViewModel,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    orderViewModel: OrderViewModel
 ) {
     val cartItems = cartViewModel.items
     val subtotal: Double = cartViewModel.total()
@@ -243,15 +247,15 @@ fun OrderScreen(
                         Spacer(Modifier.width(12.dp))
 
                         Text(
-                            text = "${item.product.price * item.qty} €",
+                            text = String.format("%.2f €", item.product.price * item.qty),
                             fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
                 // Entrega
                 item {
-                    //DeliveryCard("Calle del perro", "Hoy, 18:00 - 20:00")
-                    DeliveryCard(userViewModel.uiState.collectAsState().value.address, "Hoy, 18:00 - 20:00")
+                    DeliveryCard("Calle del perro", "Hoy, 18:00 - 20:00")
+                    //DeliveryCard(userViewModel.uiState.collectAsState().value.address, "Hoy, 18:00 - 20:00")
                 }
 
                 // Pago
@@ -282,10 +286,19 @@ fun OrderScreen(
                 item {
                     Column(Modifier.fillMaxWidth()) {
                         Button(
-                            onClick = { navController.navigate("gracias") {
+                            onClick = {
+                                navController.navigate("gracias") {
                                 popUpTo("compra") { inclusive = true }
-                                launchSingleTop = true
-                            } },
+                                launchSingleTop = true }
+                                val orderItems = createOrderItemList(cartItems)
+                                orderViewModel.createOrder("Y7RTyBSC5QYP7YerDqZIKXh4iGC3", orderItems, "CARD", "C/ Gran Via, 22")
+                                /*orderViewModel.createOrder(
+                                 userViewModel.uiState.collectAsState().value.id,
+                                 orderItems,
+                                 "CARD",
+                                 userViewModel.uiState.collectAsState().value.address)*/
+                                // crear lista de ordenes para el usuario en base de datos
+                                cartViewModel.clear() },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 4.dp),
@@ -344,5 +357,17 @@ fun OrderScreen(
                 }
             )
         }
+    }
+}
+
+fun createOrderItemList(cartItems: List<CartItem>): List<OrderItem> {
+    return cartItems.map { cartItem ->
+        OrderItem(
+            productId = cartItem.product.id,
+            name = cartItem.product.name,
+            price = cartItem.product.price,
+            qty = cartItem.qty,
+            imageUrl = cartItem.product.imageUrl
+        )
     }
 }
