@@ -7,6 +7,7 @@ import com.example.reto1_dam_2025_26.data.model.OrderItem
 import com.example.reto1_dam_2025_26.data.model.Product
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.Executors
 
@@ -17,20 +18,23 @@ class FirestoreRepository {
     private val io = Executors.newSingleThreadExecutor()
     private val main = Handler(Looper.getMainLooper())
 
-    // ---------- AUTH ----------
-    fun registerEmail(
-        email: String,
-        password: String,
-        onResult: (Boolean, String?) -> Unit
-    ) {
-        io.execute {
-            try {
-                Tasks.await(auth.createUserWithEmailAndPassword(email, password))
-                main.post { onResult(true, null) }
-            } catch (e: Exception) { main.post { onResult(false, e.message) } }
+    private fun getFriendlyErrorMessage(e: Exception): String {
+        return when (e) {
+            is FirebaseAuthException -> when (e.errorCode) {
+                "ERROR_INVALID_EMAIL" -> "El correo electrónico no es válido."
+                "ERROR_WRONG_PASSWORD" -> "La contraseña es incorrecta."
+                "ERROR_USER_NOT_FOUND" -> "No se encontró una cuenta con este correo."
+                "ERROR_USER_DISABLED" -> "Esta cuenta ha sido deshabilitada."
+                "ERROR_EMAIL_ALREADY_IN_USE" -> "Este correo electrónico ya está en uso."
+                "ERROR_WEAK_PASSWORD" -> "La contraseña es demasiado débil. Usa al menos 6 caracteres."
+                else -> "Error de autenticación: ${e.message}"
+            }
+
+            else -> e.message ?: "Ocurrió un error desconocido."
         }
     }
 
+    // ---------- AUTH ----------
     fun loginEmail(
         email: String,
         password: String,
@@ -40,13 +44,35 @@ class FirestoreRepository {
             try {
                 Tasks.await(auth.signInWithEmailAndPassword(email, password))
                 main.post { onResult(true, null) }
-            } catch (e: Exception) { main.post { onResult(false, e.message) } }
+            } catch (e: Exception) {
+                val cause = (e.cause as? FirebaseAuthException) ?: e
+                val friendly = getFriendlyErrorMessage(cause)
+                main.post { onResult(false, friendly) }
+            }
+        }
+    }
+
+    fun registerEmail(
+        email: String,
+        password: String,
+        onResult: (Boolean, String?, String?) -> Unit
+    ) {
+        io.execute {
+            try {
+                val result = Tasks.await(auth.createUserWithEmailAndPassword(email, password))
+                val uid = result.user?.uid
+                main.post { onResult(true, null, uid) }
+            } catch (e: Exception) {
+                val cause = (e.cause as? FirebaseAuthException) ?: e
+                val friendly = getFriendlyErrorMessage(cause)
+                main.post { onResult(false, friendly, null) }
+            }
         }
     }
 
     fun addUserManager(
+        uid: String,
         email: String,
-        password: String,
         username: String,
         address: String,
         onResult: (Boolean, String?) -> Unit
@@ -54,15 +80,37 @@ class FirestoreRepository {
         io.execute {
             try {
                 val user = hashMapOf(
-                    "id" to (auth.currentUser?.uid ?: ""),
+                    "id" to uid,
                     "username" to username,
                     "email" to email,
                     "address" to address,
-                    "orders" to null
+                    "orders" to emptyList<String>()
                 )
-                Tasks.await(db.collection("users").add(user))
+                Tasks.await(db.collection("users").document(uid).set(user))
                 main.post { onResult(true, null) }
-            } catch (e: Exception) { main.post { onResult(false, e.message) } }
+            } catch (e: Exception) {
+                val friendly = getFriendlyErrorMessage(e)
+                main.post { onResult(false, friendly) }
+            }
+        }
+    }
+
+    fun getUserData(
+        uid: String,
+        onResult: (Map<String, Any>?, String?) -> Unit
+    ) {
+        io.execute {
+            try {
+                val doc = Tasks.await(db.collection("users").document(uid).get())
+                if (doc.exists()) {
+                    main.post { onResult(doc.data, null) }
+                } else {
+                    main.post { onResult(null, "No se encontraron datos del usuario.") }
+                }
+            } catch (e: Exception) {
+                val friendly = getFriendlyErrorMessage(e)
+                main.post { onResult(null, friendly) }
+            }
         }
     }
 
