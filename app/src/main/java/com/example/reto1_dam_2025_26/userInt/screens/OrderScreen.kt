@@ -162,6 +162,7 @@ fun OrderScreen(
     val subtotal: Double = cartViewModel.total()
     val ivaAmount: Double = subtotal * 0.21
     val total: Double = subtotal + ivaAmount
+    val userState = userViewModel.uiState.collectAsState().value
 
     var showConfirm by rememberSaveable { mutableStateOf(false) }
 
@@ -254,7 +255,7 @@ fun OrderScreen(
                 }
                 // Entrega
                 item {
-                    DeliveryCard(userViewModel.uiState.collectAsState().value.address, "Hoy, 18:00 - 20:00")
+                    DeliveryCard(userState.address, "Hoy, 18:00 - 20:00")
                 }
 
                 // Pago
@@ -287,12 +288,12 @@ fun OrderScreen(
                         Button(
                             onClick = {
                                 val orderItems = createOrderItemList(cartItems)
-                                orderViewModel.createOrder("7h8CC1lK8AfL8uE5DBEHZkNmI833", orderItems, "CARD", "C/ Gran Via, 22")
-                                /*orderViewModel.createOrder(
-                                 userViewModel.uiState.collectAsState().value.id,
+                                //orderViewModel.createOrder("7h8CC1lK8AfL8uE5DBEHZkNmI833", orderItems, "CARD", "C/ Gran Via, 22")
+                                orderViewModel.createOrder(
+                                    userState.id,
                                  orderItems,
                                  "CARD",
-                                 userViewModel.uiState.collectAsState().value.address)*/
+                                    userState.address)
                                 // crear lista de ordenes para el usuario en base de datos
                                 cartViewModel.clear()
                                 navController.navigate("gracias") {
