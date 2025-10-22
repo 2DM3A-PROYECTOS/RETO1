@@ -254,8 +254,7 @@ fun OrderScreen(
                 }
                 // Entrega
                 item {
-                    DeliveryCard("Calle del perro", "Hoy, 18:00 - 20:00")
-                    //DeliveryCard(userViewModel.uiState.collectAsState().value.address, "Hoy, 18:00 - 20:00")
+                    DeliveryCard(userViewModel.uiState.collectAsState().value.address, "Hoy, 18:00 - 20:00")
                 }
 
                 // Pago
@@ -287,18 +286,18 @@ fun OrderScreen(
                     Column(Modifier.fillMaxWidth()) {
                         Button(
                             onClick = {
-                                navController.navigate("gracias") {
-                                popUpTo("compra") { inclusive = true }
-                                launchSingleTop = true }
                                 val orderItems = createOrderItemList(cartItems)
-                                orderViewModel.createOrder("Y7RTyBSC5QYP7YerDqZIKXh4iGC3", orderItems, "CARD", "C/ Gran Via, 22")
+                                orderViewModel.createOrder("7h8CC1lK8AfL8uE5DBEHZkNmI833", orderItems, "CARD", "C/ Gran Via, 22")
                                 /*orderViewModel.createOrder(
                                  userViewModel.uiState.collectAsState().value.id,
                                  orderItems,
                                  "CARD",
                                  userViewModel.uiState.collectAsState().value.address)*/
                                 // crear lista de ordenes para el usuario en base de datos
-                                cartViewModel.clear() },
+                                cartViewModel.clear()
+                                navController.navigate("gracias") {
+                                    popUpTo("compra") { inclusive = true }
+                                    launchSingleTop = true }},
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 4.dp),
