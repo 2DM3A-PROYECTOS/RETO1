@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
             Reto1_DAM_202526Theme(dynamicColor = false) {
                 Surface {
                     //Es_Una_Prueba()
+
                     var loggedIn by remember { mutableStateOf(false) }
 
                     if (loggedIn) {
@@ -36,7 +37,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     //GestorVentanas()
-
                 }
             }
         }

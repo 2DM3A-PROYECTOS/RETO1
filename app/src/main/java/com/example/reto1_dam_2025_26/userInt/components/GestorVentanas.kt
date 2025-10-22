@@ -28,6 +28,7 @@ import com.example.reto1_dam_2025_26.userInt.screens.Thanks
 @Composable
 fun GestorVentanas() {
 
+    //val userViewModel: UserViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
     val productViewModel: ProductsViewModel = viewModel()
     val cartViewModel: CartViewModel = viewModel()
@@ -92,7 +93,7 @@ fun GestorVentanas() {
             composable("info") { InfoScreen(navController) }
             composable("productos") { ProductsScreen(navController, cartViewModel, isLoggedIn) }
             composable("cesta") { ShoppingCartScreen(navController, cartViewModel ) }
-            composable("compra") { OrderScreen(navController) }
+            composable("compra") { OrderScreen(navController, cartViewModel, userViewModel, orderViewModel) }
             composable("gracias") { Thanks(navController) }
         }
     }

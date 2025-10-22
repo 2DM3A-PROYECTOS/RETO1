@@ -10,6 +10,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.Executors
+import com.google.firebase.firestore.FieldValue
+
 
 class FirestoreRepository {
 
@@ -123,11 +125,58 @@ class FirestoreRepository {
                 val qs = Tasks.await(db.collection("products").get())
                 val list = qs.toObjects(Product::class.java)
                 main.post { onResult(list, null) }
-            } catch (e: Exception) { main.post { onResult(null, e.message) } }
+            } catch (e: Exception) {
+                main.post { onResult(null, e.message) }
+            }
         }
     }
 
     // ---------- ORDERS ----------
+    /**
+     * Inserta order en base de datos order
+     * Inserta al user en su lista de orderr la id de la order que ha generado
+     */
+    fun createOrder(
+        userId: String,
+        items: List<OrderItem>,
+        paymentMethod: String,
+        shippingAddress: String,
+        onResult: (Boolean, String?, String?) -> Unit
+    ) {
+        io.execute {
+            try {
+                require(userId.isNotEmpty()) { "userId vacío" }
+                require(items.isNotEmpty()) { "Sin items" }
+
+                val total = items.sumOf { it.price * it.qty }
+                val ref = db.collection("orders").document()
+                val order = Order(
+                    id = ref.id,
+                    userId = userId,
+                    items = items,
+                    total = total,
+                    status = "PENDING",
+                    paymentMethod = paymentMethod,
+                    shippingAddress = shippingAddress
+                )
+
+                // Guardar la orden
+                Tasks.await(ref.set(order))
+
+                // Actualizar el campo 'orders' del usuario
+                val userRef = db.collection("users").document(userId)
+                Tasks.await(userRef.update("orders", FieldValue.arrayUnion(ref.id)))
+
+                // Resultado exitoso
+                main.post { onResult(true, null, ref.id) }
+
+            } catch (e: Exception) {
+                main.post { onResult(false, e.message, null) }
+            }
+        }
+    }
+}
+/*
     fun createOrder(
         userId: String,
         items: List<OrderItem>,
@@ -156,4 +205,4 @@ class FirestoreRepository {
             } catch (e: Exception) { main.post { onResult(false, e.message, null) } }
         }
     }
-}
+}*/
