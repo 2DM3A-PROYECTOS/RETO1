@@ -176,33 +176,3 @@ class FirestoreRepository {
         }
     }
 }
-/*
-    fun createOrder(
-        userId: String,
-        items: List<OrderItem>,
-        paymentMethod: String,
-        shippingAddress: String,
-        onResult: (Boolean, String?, String?) -> Unit
-    ) {
-        io.execute {
-            try {
-                require(userId.isNotEmpty()) { "userId vacío" }
-                require(items.isNotEmpty()) { "Sin items" }
-
-                val total = items.sumOf { it.price * it.qty }
-                val ref = db.collection("orders").document()
-                val order = Order(
-                    id = ref.id,
-                    userId = userId,
-                    items = items,
-                    total = total,
-                    status = "PENDING",
-                    paymentMethod = paymentMethod,
-                    shippingAddress = shippingAddress
-                )
-                Tasks.await(ref.set(order))
-                main.post { onResult(true, null, ref.id) }
-            } catch (e: Exception) { main.post { onResult(false, e.message, null) } }
-        }
-    }
-}*/
