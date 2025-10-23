@@ -1,5 +1,19 @@
-
-
+/**
+ * Archivo: GestorVentanas.kt
+ *
+ * Composable principal que gestiona la navegación y la estructura general
+ * de la aplicación utilizando un [Scaffold] con barra superior y barra inferior.
+ *
+ * Esta función configura los [ViewModel]s necesarios, controla el estado de inicio de sesión,
+ * detecta la orientación del dispositivo y administra la navegación entre las pantallas principales:
+ * - Info
+ * - Productos
+ * - Cesta de compra
+ * - Compra
+ * - Pantalla de agradecimiento
+ *
+ * También adapta el tamaño de la barra superior y la barra inferior según la orientación (portrait o landscape).
+ */
 package com.example.reto1_dam_2025_26.userInt.components
 
 import android.content.res.Configuration
@@ -24,6 +38,20 @@ import com.example.reto1_dam_2025_26.userInt.screens.ProductsScreen
 import com.example.reto1_dam_2025_26.userInt.screens.ShoppingCartScreen
 import com.example.reto1_dam_2025_26.userInt.screens.Thanks
 
+/**
+ * Composable principal que gestiona la navegación y la estructura general
+ * de la aplicación utilizando un [Scaffold] con barra superior y barra inferior.
+ *
+ * Esta función configura los [ViewModel]s necesarios, controla el estado de inicio de sesión,
+ * detecta la orientación del dispositivo y administra la navegación entre las pantallas principales:
+ * - Info
+ * - Productos
+ * - Cesta de compra
+ * - Compra
+ * - Pantalla de agradecimiento
+ *
+ * También adapta el tamaño de la barra superior y la barra inferior según la orientación (portrait o landscape).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GestorVentanas() {
@@ -98,4 +126,3 @@ fun GestorVentanas() {
         }
     }
 }
-
