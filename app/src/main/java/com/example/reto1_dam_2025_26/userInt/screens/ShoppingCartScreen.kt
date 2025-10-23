@@ -1,6 +1,16 @@
+/**
+ * Pantalla que muestra el contenido del carrito de compra del usuario,
+ * permitiendo visualizar los productos añadidos, modificar sus cantidades,
+ * mostrar el precio total con IVA incluido, y opciones para comprar o vaciar la cesta.
+ *
+ * Contiene una lista dinámica de productos con controles para aumentar o disminuir
+ * la cantidad, muestra el precio, IVA y total, y ofrece botones para proceder a la compra
+ * o vaciar el carrito.
+ *
+ * @file ShoppingCartScreen.kt
+ */
 package com.example.reto1_dam_2025_26.userInt.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,15 +24,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.reto1_dam_2025_26.R
 import com.example.reto1_dam_2025_26.viewmodels.CartViewModel
 
+/**
+ * Composable que representa la pantalla del carrito de compra.
+ *
+ * Muestra la lista de productos en el carrito junto con controles para ajustar
+ * las cantidades. También muestra el total, el IVA calculado y el total con IVA.
+ * Ofrece botones para proceder a la compra o vaciar el carrito.
+ *
+ * @param navController Controlador de navegación para cambiar entre pantallas.
+ * @param cartViewModel ViewModel que maneja el estado y operaciones del carrito.
+ * @return Composable que muestra la UI de la cesta de compra.
+ */
 @Composable
 fun ShoppingCartScreen(navController: NavController, cartViewModel: CartViewModel) {
     val cartItems = cartViewModel.items

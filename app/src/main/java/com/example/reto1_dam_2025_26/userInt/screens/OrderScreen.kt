@@ -1,3 +1,14 @@
+/**
+ * Pantalla de confirmación de pedido en la aplicación.
+ *
+ * Muestra el resumen del pedido con la lista de productos,
+ * detalles de entrega y pago, y opciones para confirmar o editar el pedido.
+ *
+ * Contiene componentes auxiliares para mostrar secciones y formatos de moneda,
+ * además de lógica para crear la lista de ítems de la orden a partir del carrito.
+ *
+ * @file OrderScreen.kt
+ */
 package com.example.reto1_dam_2025_26.userInt.screens
 
 import androidx.compose.foundation.background
@@ -48,7 +59,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.reto1_dam_2025_26.viewmodels.AuthUiState
 import com.example.reto1_dam_2025_26.viewmodels.CartViewModel
 import com.example.reto1_dam_2025_26.viewmodels.UserViewModel
 import java.text.NumberFormat
@@ -58,13 +68,21 @@ import com.example.reto1_dam_2025_26.data.model.OrderItem
 import com.example.reto1_dam_2025_26.viewmodels.CartItem
 import com.example.reto1_dam_2025_26.viewmodels.OrderViewModel
 
-// -------------------------
-// HELPERS
-// -------------------------
+/**
+ * Formatea un valor numérico como moneda en formato español (€).
+ *
+ * @param value Valor numérico a formatear.
+ * @return Cadena con el valor formateado como moneda.
+ */
 private fun money(value: Double): String {
     val esES = Locale.forLanguageTag("es-ES")   // ✅ en vez de Locale("es","ES")
     return NumberFormat.getCurrencyInstance(esES).format(value)
 }
+/**
+ * Composable que muestra un título de sección con estilo definido.
+ *
+ * @param text Texto que se mostrará como título.
+ */
 @Composable
 private fun SectionTitle(text: String) {
     Text(
@@ -74,6 +92,14 @@ private fun SectionTitle(text: String) {
     )
 }
 
+/**
+ * Composable que muestra una fila con una clave y un valor,
+ * con opción a enfatizar el valor.
+ *
+ * @param label Texto de la clave o etiqueta.
+ * @param value Texto del valor asociado.
+ * @param emphasize Indica si se debe enfatizar el valor (negrita).
+ */
 @Composable
 private fun KeyValueRow(label: String, value: String, emphasize: Boolean = false) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -88,6 +114,13 @@ private fun KeyValueRow(label: String, value: String, emphasize: Boolean = false
 // -------------------------
 // BLOQUE: ENTREGA
 // -------------------------
+/**
+ * Composable que muestra información sobre la entrega,
+ * incluyendo dirección y ventana horaria.
+ *
+ * @param address Dirección de entrega.
+ * @param window Ventana horaria de entrega.
+ */
 @Composable
 private fun DeliveryCard(address: String, window: String) {
     ElevatedCard(
@@ -122,6 +155,11 @@ private fun DeliveryCard(address: String, window: String) {
 // -------------------------
 // BLOQUE: PAGO
 // -------------------------
+/**
+ * Composable que muestra información sobre el método de pago utilizado.
+ *
+ * @param method Descripción del método de pago (ejemplo: Visa **** 1234).
+ */
 @Composable
 private fun PaymentCard(method: String) {
     ElevatedCard(
@@ -150,6 +188,19 @@ private fun PaymentCard(method: String) {
 // -------------------------
 // PANTALLA PRINCIPAL
 // -------------------------
+/**
+ * Pantalla composable que muestra la confirmación de pedido.
+ *
+ * Permite visualizar los productos en el carrito, detalles de entrega y pago,
+ * resumen del pago con subtotal, IVA y total, y botones para confirmar o editar el pedido.
+ *
+ * También gestiona el diálogo de confirmación de compra y la navegación.
+ *
+ * @param navController Controlador de navegación para gestionar pantallas.
+ * @param cartViewModel ViewModel que gestiona el estado y operaciones del carrito.
+ * @param userViewModel ViewModel que contiene el estado del usuario.
+ * @param orderViewModel ViewModel que gestiona la creación de pedidos.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderScreen(
@@ -360,6 +411,12 @@ fun OrderScreen(
     }
 }
 
+/**
+ * Crea una lista de objetos [OrderItem] a partir de los elementos del carrito.
+ *
+ * @param cartItems Lista de [CartItem] actualmente en el carrito.
+ * @return Lista de [OrderItem] con los datos necesarios para crear un pedido.
+ */
 fun createOrderItemList(cartItems: List<CartItem>): List<OrderItem> {
     return cartItems.map { cartItem ->
         OrderItem(

@@ -1,5 +1,15 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
+/**
+ * Pantallas y componentes para autenticación de usuario.
+ *
+ * Proporciona la pantalla principal de login/registro ([AuthScreen]) y
+ * los componentes reutilizables para la entrada de datos y botones.
+ *
+ * Incluye animaciones, manejo de estado y validación básica visual.
+ *
+ * @file AuthScreen.kt
+ */
 package com.example.reto1_dam_2025_26.userInt.screens
 
 import android.widget.Toast
@@ -27,10 +37,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.reto1_dam_2025_26.viewmodels.UserViewModel
 
-/* -------------------------------------------------------------------------- */
-/*                              AUTH MAIN SCREEN                              */
-/* -------------------------------------------------------------------------- */
-
+/**
+ * Pantalla principal para autenticación.
+ *
+ * Permite alternar entre las vistas de login y registro con animaciones y
+ * actualiza el estado del usuario a través del [UserViewModel].
+ *
+ * Muestra mensajes Toast en caso de error o éxito en la autenticación.
+ *
+ * @param vm Instancia del [UserViewModel] para manejar el estado y eventos.
+ * @param onLoggedIn Callback que se ejecuta tras un inicio de sesión o registro exitoso.
+ */
 @Composable
 fun AuthScreen(
     vm: UserViewModel = viewModel(),
@@ -132,10 +149,19 @@ fun AuthScreen(
     }
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                 LOGIN CARD                                 */
-/* -------------------------------------------------------------------------- */
-
+/**
+ * Tarjeta para iniciar sesión.
+ *
+ * Muestra campos para email y contraseña, botón para login y enlace para registrar cuenta.
+ *
+ * @param email Texto actual del campo email.
+ * @param password Texto actual del campo contraseña.
+ * @param onEmailChange Callback para actualizar el email.
+ * @param onPasswordChange Callback para actualizar la contraseña.
+ * @param onLoginClick Callback para el evento de login.
+ * @param onRegisterClick Callback para mostrar la pantalla de registro.
+ * @param isLoading Indica si la operación está en progreso para deshabilitar controles.
+ */
 @Composable
 fun LoginCard(
     email: String,
@@ -161,10 +187,24 @@ fun LoginCard(
     )
 }
 
-/* -------------------------------------------------------------------------- */
-/*                               REGISTER CARD                                */
-/* -------------------------------------------------------------------------- */
-
+/**
+ * Tarjeta para registrar un nuevo usuario.
+ *
+ * Muestra campos para nombre de usuario, email, dirección y contraseña,
+ * botón para registrar y enlace para volver al login.
+ *
+ * @param username Texto actual del campo nombre de usuario.
+ * @param email Texto actual del campo email.
+ * @param address Texto actual del campo dirección.
+ * @param password Texto actual del campo contraseña.
+ * @param onUsernameChange Callback para actualizar el nombre de usuario.
+ * @param onEmailChange Callback para actualizar el email.
+ * @param onAddressChange Callback para actualizar la dirección.
+ * @param onPasswordChange Callback para actualizar la contraseña.
+ * @param onRegisterClick Callback para el evento de registro.
+ * @param onBackClick Callback para volver a la pantalla de login.
+ * @param isLoading Indica si la operación está en progreso para deshabilitar controles.
+ */
 @Composable
 fun RegisterCard(
     username: String,
@@ -198,10 +238,19 @@ fun RegisterCard(
     )
 }
 
-/* -------------------------------------------------------------------------- */
-/*                          REUSABLE COMPOSABLE BLOCKS                         */
-/* -------------------------------------------------------------------------- */
-
+/**
+ * Componente reutilizable para las tarjetas de autenticación.
+ *
+ * Renderiza un título, campos de entrada, botón principal y texto inferior con acción.
+ *
+ * @param title Título que aparece en la tarjeta.
+ * @param fields Composable que representa los campos de entrada personalizados.
+ * @param buttonText Texto del botón principal.
+ * @param onButtonClick Callback al pulsar el botón principal.
+ * @param isLoading Indica si se debe mostrar un indicador de carga.
+ * @param bottomText Texto para el botón inferior.
+ * @param onBottomClick Callback al pulsar el botón inferior.
+ */
 @Composable
 private fun AuthCard(
     title: String,
@@ -254,6 +303,13 @@ private fun AuthCard(
     }
 }
 
+/**
+ * Campo de texto con etiqueta para formularios de autenticación.
+ *
+ * @param label Etiqueta del campo.
+ * @param value Valor actual del campo.
+ * @param onValueChange Callback para actualizar el valor.
+ */
 @Composable
 private fun AuthTextField(
     label: String,
@@ -271,6 +327,13 @@ private fun AuthTextField(
     )
 }
 
+/**
+ * Campo de texto para la dirección.
+ *
+ * @param label Etiqueta del campo.
+ * @param value Valor actual del campo.
+ * @param onValueChange Callback para actualizar el valor.
+ */
 @Composable
 private fun AddressField(
     label: String,
@@ -288,6 +351,12 @@ private fun AddressField(
     )
 }
 
+/**
+ * Campo de texto para la contraseña con opción de mostrar/ocultar texto.
+ *
+ * @param password Texto actual de la contraseña.
+ * @param onPasswordChange Callback para actualizar la contraseña.
+ */
 @Composable
 private fun PasswordField(
     password: String,
@@ -318,10 +387,11 @@ private fun PasswordField(
     )
 }
 
-/* -------------------------------------------------------------------------- */
-/*                             TEXT FIELD COLORS                              */
-/* -------------------------------------------------------------------------- */
-
+/**
+ * Colores personalizados para los campos de texto en modo oscuro y claro.
+ *
+ * @return Un [TextFieldColors] con la configuración de colores adecuada.
+ */
 @Composable
 private fun textFieldColors() = TextFieldDefaults.colors(
     focusedContainerColor = Color.Transparent,

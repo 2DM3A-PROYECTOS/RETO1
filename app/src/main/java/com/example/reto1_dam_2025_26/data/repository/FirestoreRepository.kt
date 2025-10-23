@@ -1,3 +1,10 @@
+/**
+ * Repositorio para gestionar operaciones con Firestore y Firebase Authentication.
+ *
+ * Proporciona métodos para autenticación, manejo de usuarios, productos y órdenes en la base de datos Firestore.
+ *
+ * @file FirestoreRepository.kt
+ */
 package com.example.reto1_dam_2025_26.data.repository
 
 import android.os.Handler
@@ -12,7 +19,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.Executors
 import com.google.firebase.firestore.FieldValue
 
-
+/**
+ * Clase que abstrae las operaciones de acceso a datos en Firestore y autenticación Firebase.
+ */
 class FirestoreRepository {
 
     private val db = FirebaseFirestore.getInstance()
@@ -20,6 +29,12 @@ class FirestoreRepository {
     private val io = Executors.newSingleThreadExecutor()
     private val main = Handler(Looper.getMainLooper())
 
+    /**
+     * Traduce errores de FirebaseAuth en mensajes amigables para el usuario.
+     *
+     * @param e Excepción capturada.
+     * @return Mensaje amigable para mostrar.
+     */
     private fun getFriendlyErrorMessage(e: Exception): String {
         return when (e) {
             is FirebaseAuthException -> when (e.errorCode) {
@@ -31,12 +46,17 @@ class FirestoreRepository {
                 "ERROR_WEAK_PASSWORD" -> "La contraseña es demasiado débil. Usa al menos 6 caracteres."
                 else -> "Error de autenticación: ${e.message}"
             }
-
             else -> e.message ?: "Ocurrió un error desconocido."
         }
     }
 
-    // ---------- AUTH ----------
+    /**
+     * Realiza el login con email y contraseña.
+     *
+     * @param email Correo electrónico del usuario.
+     * @param password Contraseña del usuario.
+     * @param onResult Callback con resultado: éxito (Boolean) y mensaje de error (String?).
+     */
     fun loginEmail(
         email: String,
         password: String,
@@ -54,6 +74,13 @@ class FirestoreRepository {
         }
     }
 
+    /**
+     * Registra un nuevo usuario con email y contraseña.
+     *
+     * @param email Correo electrónico a registrar.
+     * @param password Contraseña para la cuenta.
+     * @param onResult Callback con resultado: éxito (Boolean), mensaje de error (String?) y UID del usuario creado (String?).
+     */
     fun registerEmail(
         email: String,
         password: String,
@@ -72,6 +99,15 @@ class FirestoreRepository {
         }
     }
 
+    /**
+     * Agrega un usuario en Firestore tras la creación en FirebaseAuth.
+     *
+     * @param uid ID único del usuario.
+     * @param email Correo electrónico del usuario.
+     * @param username Nombre de usuario.
+     * @param address Dirección del usuario.
+     * @param onResult Callback con resultado: éxito (Boolean) y mensaje de error (String?).
+     */
     fun addUserManager(
         uid: String,
         email: String,
@@ -97,6 +133,12 @@ class FirestoreRepository {
         }
     }
 
+    /**
+     * Obtiene los datos de un usuario a partir de su UID.
+     *
+     * @param uid ID del usuario.
+     * @param onResult Callback con resultado: mapa de datos (Map<String, Any>?) y mensaje de error (String?).
+     */
     fun getUserData(
         uid: String,
         onResult: (Map<String, Any>?, String?) -> Unit
@@ -116,9 +158,18 @@ class FirestoreRepository {
         }
     }
 
+    /**
+     * Obtiene el UID del usuario actualmente autenticado, o null si no hay sesión iniciada.
+     *
+     * @return UID del usuario o null.
+     */
     fun currentUid(): String? = auth.currentUser?.uid
 
-    // ---------- PRODUCTS ----------
+    /**
+     * Obtiene la lista de todos los productos disponibles.
+     *
+     * @param onResult Callback con resultado: lista de productos (List<Product>?) y mensaje de error (String?).
+     */
     fun getAllProducts(onResult: (List<Product>?, String?) -> Unit) {
         io.execute {
             try {
@@ -131,10 +182,14 @@ class FirestoreRepository {
         }
     }
 
-    // ---------- ORDERS ----------
     /**
-     * Inserta order en base de datos order
-     * Inserta al user en su lista de orderr la id de la order que ha generado
+     * Crea una nueva orden en Firestore y actualiza la lista de órdenes del usuario.
+     *
+     * @param userId ID del usuario que realiza la orden.
+     * @param items Lista de ítems comprados.
+     * @param paymentMethod Método de pago utilizado.
+     * @param shippingAddress Dirección de envío.
+     * @param onResult Callback con resultado: éxito (Boolean), mensaje de error (String?) y ID de la orden creada (String?).
      */
     fun createOrder(
         userId: String,
