@@ -64,7 +64,7 @@ fun BottomNavBar(
             NavigationBarItem(
                 icon = {
                     if (isCart) {
-                        // ✅ Icono con badge (por ejemplo, número 1)
+                        // Icono número pedido en carrito
                         BadgedBox(
                             badge = {
                                 Badge(
