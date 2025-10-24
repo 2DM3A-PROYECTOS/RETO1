@@ -1,3 +1,16 @@
+/**
+ * Funciones para enviar un correo electrónico mediante una función Lambda HTTP.
+ *
+ * Proporciona la función [enviarCorreoLambda] que construye y envía una petición HTTP POST
+ * con un JSON que incluye los campos "to", "subject" y "message".
+ *
+ * La petición se envía a una URL de Lambda definida y con un token de autenticación.
+ * El envío se realiza en un hilo separado para no bloquear la interfaz principal.
+ *
+ * **Nota:** Cambiar la URL `url` y el token `token` por los valores correctos antes de usar.
+ *
+ * @file EnviarCoreo.kt
+ */
 package com.example.reto1_dam_2025_26.userInt.screens
 
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -5,6 +18,21 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+
+/**
+ * Envía un correo electrónico a través de una función Lambda HTTP.
+ *
+ * Construye un JSON con los campos:
+ * - "to": destinatario del correo
+ * - "subject": asunto del correo
+ * - "message": cuerpo del correo
+ *
+ * Y lo envía en una petición POST a la URL definida.
+ *
+ * El envío se realiza en un hilo separado para no bloquear el hilo principal.
+ *
+ * **Importante:** Actualizar la URL y el token con los valores reales antes de usar.
+ */
 fun enviarCorreoLambda() {
     val url = "https://TU_LAMBDA_URL" // La URL de tu Lambda
     val token = "mF8Xk9u2l7OaB5FZqvH2j1sW9cR8yTzP6aQvB0xE3fI"

@@ -1,3 +1,11 @@
+/**
+ * Pantalla de información del mercado que muestra detalles de contacto y ubicación.
+ *
+ * Contiene la imagen principal del Mercado de la Ribera y filas con información
+ * de teléfono, email y dirección.
+ *
+ * @file InfoScreen.kt
+ */
 package com.example.reto1_dam_2025_26.userInt.screens
 
 import androidx.compose.foundation.Image
@@ -24,11 +32,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.reto1_dam_2025_26.R
-
-import androidx.compose.material3.darkColorScheme
 import com.example.reto1_dam_2025_26.ui.theme.Blanco
 import com.example.reto1_dam_2025_26.ui.theme.RojoMercado
 
+/**
+ * Composable que muestra la pantalla de información del mercado con datos de contacto.
+ *
+ * @param navController Controlador de navegación para la pantalla.
+ */
 @Composable
 fun InfoScreen(navController: NavController) {
     Surface(
@@ -75,6 +86,12 @@ fun InfoScreen(navController: NavController) {
     }
 }
 
+/**
+ * Composable que muestra una fila con un icono y un texto asociado para información.
+ *
+ * @param icon Ícono que representa la información (por ejemplo: teléfono, email, dirección).
+ * @param text Texto que se muestra junto al ícono.
+ */
 @Composable
 private fun InfoRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector,

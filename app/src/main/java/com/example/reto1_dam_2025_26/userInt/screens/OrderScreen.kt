@@ -1,6 +1,16 @@
+/**
+ * Pantalla de confirmación de pedido en la aplicación.
+ *
+ * Muestra el resumen del pedido con la lista de productos,
+ * detalles de entrega y pago, y opciones para confirmar o editar el pedido.
+ *
+ * Contiene componentes auxiliares para mostrar secciones y formatos de moneda,
+ * además de lógica para crear la lista de ítems de la orden a partir del carrito.
+ *
+ * @file OrderScreen.kt
+ */
 package com.example.reto1_dam_2025_26.userInt.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,7 +23,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -43,50 +52,37 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.reto1_dam_2025_26.R
+import coil.compose.AsyncImage
+import com.example.reto1_dam_2025_26.viewmodels.CartViewModel
+import com.example.reto1_dam_2025_26.viewmodels.UserViewModel
 import java.text.NumberFormat
 import java.util.Locale
+import androidx.compose.runtime.collectAsState
+import com.example.reto1_dam_2025_26.data.model.OrderItem
+import com.example.reto1_dam_2025_26.viewmodels.CartItem
+import com.example.reto1_dam_2025_26.viewmodels.OrderViewModel
 
-// -------------------------
-// MODELOS DE DATOS (demo)
-// -------------------------
-data class CartItem(
-    val id: String,
-    val name: String,
-    val subtitle: String,
-    val quantity: Int,
-    val unitPrice: Double,
-    val imageRes: Int = R.drawable.imagenprueba
-)
-
-data class OrderSummary(
-    val items: List<CartItem>,
-    val deliveryAddress: String,
-    val deliveryWindow: String,
-    val paymentMethod: String, // p.ej. "Visa •••• 1234"
-    val ivaRate: Double = 0.21, // 21%
-    val shippingCost: Double = 0.0
-) {
-    val subtotal: Double get() = items.sumOf { it.unitPrice * it.quantity }
-    val ivaAmount: Double get() = subtotal * ivaRate
-    val total: Double get() = subtotal + ivaAmount + shippingCost
-}
-
-// -------------------------
-// HELPERS
-// -------------------------
+/**
+ * Formatea un valor numérico como moneda en formato español (€).
+ *
+ * @param value Valor numérico a formatear.
+ * @return Cadena con el valor formateado como moneda.
+ */
 private fun money(value: Double): String {
     val esES = Locale.forLanguageTag("es-ES")   // ✅ en vez de Locale("es","ES")
     return NumberFormat.getCurrencyInstance(esES).format(value)
 }
+/**
+ * Composable que muestra un título de sección con estilo definido.
+ *
+ * @param text Texto que se mostrará como título.
+ */
 @Composable
 private fun SectionTitle(text: String) {
     Text(
@@ -96,6 +92,14 @@ private fun SectionTitle(text: String) {
     )
 }
 
+/**
+ * Composable que muestra una fila con una clave y un valor,
+ * con opción a enfatizar el valor.
+ *
+ * @param label Texto de la clave o etiqueta.
+ * @param value Texto del valor asociado.
+ * @param emphasize Indica si se debe enfatizar el valor (negrita).
+ */
 @Composable
 private fun KeyValueRow(label: String, value: String, emphasize: Boolean = false) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -108,56 +112,15 @@ private fun KeyValueRow(label: String, value: String, emphasize: Boolean = false
 }
 
 // -------------------------
-// ITEM DEL CARRITO
-// -------------------------
-@Composable
-private fun OrderItemRow(item: CartItem) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painterResource(id = item.imageRes),
-            contentDescription = item.name,
-            modifier = Modifier
-                .size(56.dp)
-                .clip(RoundedCornerShape(12.dp))
-        )
-        Spacer(Modifier.width(12.dp))
-        Column(Modifier.weight(1f)) {
-            Text(
-                item.name,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                item.subtitle,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.secondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                "x${item.quantity} • ${money(item.unitPrice)} / ud.",
-                fontSize = 12.sp
-            )
-        }
-        Spacer(Modifier.width(12.dp))
-        Text(
-            money(item.unitPrice * item.quantity),
-            fontWeight = FontWeight.SemiBold
-        )
-    }
-}
-
-// -------------------------
 // BLOQUE: ENTREGA
 // -------------------------
+/**
+ * Composable que muestra información sobre la entrega,
+ * incluyendo dirección y ventana horaria.
+ *
+ * @param address Dirección de entrega.
+ * @param window Ventana horaria de entrega.
+ */
 @Composable
 private fun DeliveryCard(address: String, window: String) {
     ElevatedCard(
@@ -192,6 +155,11 @@ private fun DeliveryCard(address: String, window: String) {
 // -------------------------
 // BLOQUE: PAGO
 // -------------------------
+/**
+ * Composable que muestra información sobre el método de pago utilizado.
+ *
+ * @param method Descripción del método de pago (ejemplo: Visa **** 1234).
+ */
 @Composable
 private fun PaymentCard(method: String) {
     ElevatedCard(
@@ -220,23 +188,32 @@ private fun PaymentCard(method: String) {
 // -------------------------
 // PANTALLA PRINCIPAL
 // -------------------------
+/**
+ * Pantalla composable que muestra la confirmación de pedido.
+ *
+ * Permite visualizar los productos en el carrito, detalles de entrega y pago,
+ * resumen del pago con subtotal, IVA y total, y botones para confirmar o editar el pedido.
+ *
+ * También gestiona el diálogo de confirmación de compra y la navegación.
+ *
+ * @param navController Controlador de navegación para gestionar pantallas.
+ * @param cartViewModel ViewModel que gestiona el estado y operaciones del carrito.
+ * @param userViewModel ViewModel que contiene el estado del usuario.
+ * @param orderViewModel ViewModel que gestiona la creación de pedidos.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderScreen(
     navController: NavController,
-    // Si lo conectas con ViewModel/estado real, pasa el OrderSummary por parámetro
-    demoSummary: OrderSummary? = null
+    cartViewModel: CartViewModel,
+    userViewModel: UserViewModel,
+    orderViewModel: OrderViewModel
 ) {
-    val summary = demoSummary ?: OrderSummary(
-        items = listOf(
-            CartItem("1", "Filete de ternera", "Paquete 500 g", 2, 8.50),
-            CartItem("2", "Manzanas Fuji", "Bandeja 1 kg", 1, 3.20),
-            CartItem("3", "Pan artesanal", "Barra 300 g", 2, 1.30)
-        ),
-        deliveryAddress = "C/ Ribera 12, 2ºA — Bilbao",
-        deliveryWindow = "Hoy, 18:00 - 20:00",
-        paymentMethod = "Visa •••• 1234"
-    )
+    val cartItems = cartViewModel.items
+    val subtotal: Double = cartViewModel.total()
+    val ivaAmount: Double = subtotal * 0.21
+    val total: Double = subtotal + ivaAmount
+    val userState = userViewModel.uiState.collectAsState().value
 
     var showConfirm by rememberSaveable { mutableStateOf(false) }
 
@@ -272,19 +249,69 @@ fun OrderScreen(
                 item {
                     SectionTitle("Tu pedido")
                 }
-                items(summary.items) { item ->
-                    OrderItemRow(item)
-                    HorizontalDivider()
-                }
+                items(cartItems.size) { index ->
+                    val item = cartItems[index]
 
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Imagen del producto
+                        AsyncImage(
+                            model = item.product.imageUrl,
+                            contentDescription = item.product.name,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(60.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                        )
+
+                        Spacer(Modifier.width(12.dp))
+
+                        Column(Modifier.weight(1f)) {
+
+                            Text(
+                                item.product.name,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+
+                            Text(
+                                item.product.description,
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.secondary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+
+                            Spacer(Modifier.height(4.dp))
+
+                            Text(
+                                "x${item.qty.toString()} • ${money(item.product.price)} / ud.",
+                                fontSize = 12.sp
+                            )
+                        }
+
+                        Spacer(Modifier.width(12.dp))
+
+                        Text(
+                            text = String.format("%.2f €", item.product.price * item.qty),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
                 // Entrega
                 item {
-                    DeliveryCard(summary.deliveryAddress, summary.deliveryWindow)
+                    DeliveryCard(userState.address, "Hoy, 18:00 - 20:00")
                 }
 
                 // Pago
                 item {
-                    PaymentCard(summary.paymentMethod)
+                    PaymentCard("Visa **** 1234")
                 }
 
                 // Totales
@@ -298,13 +325,10 @@ fun OrderScreen(
                         Column(Modifier.padding(16.dp)) {
                             SectionTitle("Resumen de pago")
                             Spacer(Modifier.height(8.dp))
-                            KeyValueRow("Subtotal", money(summary.subtotal))
-                            KeyValueRow("IVA (${(summary.ivaRate * 100).toInt()}%)", money(summary.ivaAmount))
-                            if (summary.shippingCost != 0.0) {
-                                KeyValueRow("Envío", money(summary.shippingCost))
-                            }
+                            KeyValueRow("Subtotal", money(subtotal))
+                            KeyValueRow("IVA (21%)", money(ivaAmount))
                             HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                            KeyValueRow("Total", money(summary.total), emphasize = true)
+                            KeyValueRow("Total", money(total), emphasize = true)
                         }
                     }
                 }
@@ -313,10 +337,19 @@ fun OrderScreen(
                 item {
                     Column(Modifier.fillMaxWidth()) {
                         Button(
-                            onClick = { navController.navigate("gracias") {
-                                popUpTo("compra") { inclusive = true }
-                                launchSingleTop = true
-                            } },
+                            onClick = {
+                                val orderItems = createOrderItemList(cartItems)
+                                //orderViewModel.createOrder("7h8CC1lK8AfL8uE5DBEHZkNmI833", orderItems, "CARD", "C/ Gran Via, 22")
+                                orderViewModel.createOrder(
+                                    userState.id,
+                                 orderItems,
+                                 "CARD",
+                                    userState.address)
+                                // crear lista de ordenes para el usuario en base de datos
+                                cartViewModel.clear()
+                                navController.navigate("gracias") {
+                                    popUpTo("compra") { inclusive = true }
+                                    launchSingleTop = true }},
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 4.dp),
@@ -352,9 +385,9 @@ fun OrderScreen(
                 title = { Text("¿Confirmar compra?") },
                 text = {
                     Column {
-                        Text("Total a pagar: ${money(summary.total)}")
+                        Text("Total a pagar: ${money(total)}")
                         Spacer(Modifier.height(4.dp))
-                        Text("Se aplicará el método de pago ${summary.paymentMethod}.")
+                        Text("Se aplicará el método de pago: Visa.")
                     }
                 },
                 confirmButton = {
@@ -378,12 +411,20 @@ fun OrderScreen(
     }
 }
 
-// -------------------------
-// PREVIEW
-// -------------------------
-@Preview(showBackground = true)
-@Composable
-private fun OrderScreenPreview() { //PRESIONA AQUI PARA VER LA VENTANA
-    val nav = rememberNavController()
-    OrderScreen(navController = nav)
+/**
+ * Crea una lista de objetos [OrderItem] a partir de los elementos del carrito.
+ *
+ * @param cartItems Lista de [CartItem] actualmente en el carrito.
+ * @return Lista de [OrderItem] con los datos necesarios para crear un pedido.
+ */
+fun createOrderItemList(cartItems: List<CartItem>): List<OrderItem> {
+    return cartItems.map { cartItem ->
+        OrderItem(
+            productId = cartItem.product.id,
+            name = cartItem.product.name,
+            price = cartItem.product.price,
+            qty = cartItem.qty,
+            imageUrl = cartItem.product.imageUrl
+        )
+    }
 }
