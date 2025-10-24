@@ -11,6 +11,8 @@
 .gradle/
 build/
 */build/
+!/build/dokka
+!/build/dokka/**
 captures/
 .externalNativeBuild/
 .cxx/
