@@ -1,10 +1,3 @@
-/**
- * Repositorio para gestionar operaciones con Firestore y Firebase Authentication.
- *
- * Proporciona métodos para autenticación, manejo de usuarios, productos y órdenes en la base de datos Firestore.
- *
- * @file FirestoreRepository.kt
- */
 package com.example.reto1_dam_2025_26.data.repository
 
 import android.os.Handler
@@ -16,12 +9,9 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.concurrent.Executors
 import com.google.firebase.firestore.FieldValue
+import java.util.concurrent.Executors
 
-/**
- * Clase que abstrae las operaciones de acceso a datos en Firestore y autenticación Firebase.
- */
 class FirestoreRepository {
 
     private val db = FirebaseFirestore.getInstance()
@@ -29,12 +19,7 @@ class FirestoreRepository {
     private val io = Executors.newSingleThreadExecutor()
     private val main = Handler(Looper.getMainLooper())
 
-    /**
-     * Traduce errores de FirebaseAuth en mensajes amigables para el usuario.
-     *
-     * @param e Excepción capturada.
-     * @return Mensaje amigable para mostrar.
-     */
+    /** Traduce errores de FirebaseAuth en mensajes amigables. */
     private fun getFriendlyErrorMessage(e: Exception): String {
         return when (e) {
             is FirebaseAuthException -> when (e.errorCode) {
@@ -50,13 +35,7 @@ class FirestoreRepository {
         }
     }
 
-    /**
-     * Realiza el login con email y contraseña.
-     *
-     * @param email Correo electrónico del usuario.
-     * @param password Contraseña del usuario.
-     * @param onResult Callback con resultado: éxito (Boolean) y mensaje de error (String?).
-     */
+    /** Login con email y contraseña. */
     fun loginEmail(
         email: String,
         password: String,
@@ -74,46 +53,33 @@ class FirestoreRepository {
         }
     }
 
-    /**
-     * Registra un nuevo usuario con email y contraseña.
-     *
-     * @param email Correo electrónico a registrar.
-     * @param password Contraseña para la cuenta.
-     * @param onResult Callback con resultado: éxito (Boolean), mensaje de error (String?) y UID del usuario creado (String?).
-     */
+    /** Registro con email y contraseña. */
     fun registerEmail(
         email: String,
         password: String,
-        onResult: (Boolean, String?, String?) -> Unit
+        onResult: (Boolean, String?) -> Unit
     ) {
         io.execute {
             try {
                 val result = Tasks.await(auth.createUserWithEmailAndPassword(email, password))
                 val uid = result.user?.uid
-                main.post { onResult(true, null, uid) }
+                // Llamamos al callback con éxito
+                main.post { onResult(true, null) }
             } catch (e: Exception) {
                 val cause = (e.cause as? FirebaseAuthException) ?: e
                 val friendly = getFriendlyErrorMessage(cause)
-                main.post { onResult(false, friendly, null) }
+                main.post { onResult(false, friendly) }
             }
         }
     }
 
-    /**
-     * Agrega un usuario en Firestore tras la creación en FirebaseAuth.
-     *
-     * @param uid ID único del usuario.
-     * @param email Correo electrónico del usuario.
-     * @param username Nombre de usuario.
-     * @param address Dirección del usuario.
-     * @param onResult Callback con resultado: éxito (Boolean) y mensaje de error (String?).
-     */
+    /** Agrega el usuario a Firestore. */
     fun addUserManager(
         uid: String,
         email: String,
         username: String,
         address: String,
-        onResult: (Boolean, String?) -> Unit
+        callback: (Boolean, String?) -> Unit
     ) {
         io.execute {
             try {
@@ -125,20 +91,15 @@ class FirestoreRepository {
                     "orders" to emptyList<String>()
                 )
                 Tasks.await(db.collection("users").document(uid).set(user))
-                main.post { onResult(true, null) }
+                main.post { callback(true, null) }
             } catch (e: Exception) {
                 val friendly = getFriendlyErrorMessage(e)
-                main.post { onResult(false, friendly) }
+                main.post { callback(false, friendly) }
             }
         }
     }
 
-    /**
-     * Obtiene los datos de un usuario a partir de su UID.
-     *
-     * @param uid ID del usuario.
-     * @param onResult Callback con resultado: mapa de datos (Map<String, Any>?) y mensaje de error (String?).
-     */
+    /** Obtiene datos de usuario. */
     fun getUserData(
         uid: String,
         onResult: (Map<String, Any>?, String?) -> Unit
@@ -158,18 +119,9 @@ class FirestoreRepository {
         }
     }
 
-    /**
-     * Obtiene el UID del usuario actualmente autenticado, o null si no hay sesión iniciada.
-     *
-     * @return UID del usuario o null.
-     */
     fun currentUid(): String? = auth.currentUser?.uid
 
-    /**
-     * Obtiene la lista de todos los productos disponibles.
-     *
-     * @param onResult Callback con resultado: lista de productos (List<Product>?) y mensaje de error (String?).
-     */
+    /** Obtiene todos los productos. */
     fun getAllProducts(onResult: (List<Product>?, String?) -> Unit) {
         io.execute {
             try {
@@ -182,15 +134,7 @@ class FirestoreRepository {
         }
     }
 
-    /**
-     * Crea una nueva orden en Firestore y actualiza la lista de órdenes del usuario.
-     *
-     * @param userId ID del usuario que realiza la orden.
-     * @param items Lista de ítems comprados.
-     * @param paymentMethod Método de pago utilizado.
-     * @param shippingAddress Dirección de envío.
-     * @param onResult Callback con resultado: éxito (Boolean), mensaje de error (String?) y ID de la orden creada (String?).
-     */
+    /** Crea una orden. */
     fun createOrder(
         userId: String,
         items: List<OrderItem>,
@@ -215,14 +159,10 @@ class FirestoreRepository {
                     shippingAddress = shippingAddress
                 )
 
-                // Guardar la orden
                 Tasks.await(ref.set(order))
-
-                // Actualizar el campo 'orders' del usuario
                 val userRef = db.collection("users").document(userId)
                 Tasks.await(userRef.update("orders", FieldValue.arrayUnion(ref.id)))
 
-                // Resultado exitoso
                 main.post { onResult(true, null, ref.id) }
 
             } catch (e: Exception) {

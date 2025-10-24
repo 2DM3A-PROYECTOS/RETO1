@@ -79,12 +79,15 @@ fun AuthScreen(
             val message = if (showLogin) {
                 "Inicio de sesion exitoso!"
             } else {
-                "Registro exitoso!"
+                // Cuando el registro es exitoso, enviamos el correo
+                enviarCorreoLambda(state.email)
+                "Registro exitoso! Se ha enviado un correo de confirmación."
             }
             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             onLoggedIn()
         }
     }
+
 
     Box(
         modifier = Modifier

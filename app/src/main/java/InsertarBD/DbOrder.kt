@@ -38,19 +38,21 @@ class DbOrder {
         //    name: this.name,
         //    rollno: this.rollno
         //})
-
-        db.collection("Orders")
+        return  try{
+        val DocRef = db.collection("Orders")
             .document(idOrder)
             .collection("Products")
-            .document().set(product)
-            .addOnSuccessListener {
-                println("Los Productos se han insertado con éxito")
-            }
-            .addOnFailureListener { e ->
-                println("Ha producido un error: ${e.message}")
-            }
+            .document()
 
+        val productId = DocRef.id
 
-        return TODO("Provide the return value")
+        DocRef.set(product).await()
+        println("Producto se ha añadido con exito al pedido $idOrder, Id producto $productId")
+        productId // retorna el ID del producto añadido
+        } catch (e: Exception){
+            println("Se ha producido un error")
+            null
+        }
+
     }
 }
