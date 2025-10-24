@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 data class AuthUiState(
+    val id: String = "",
     val username: String = "",
     val email: String = "",
     val address: String = "",
@@ -52,13 +53,19 @@ class UserViewModel(
         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
         viewModelScope.launch {
-            repo.loginEmail(email, password) { success, message ->
-                _uiState.value = if (success) {
-                    _uiState.value.copy(isLoggedIn = true, isLoading = false)
+            repo.loginEmail(email, password) { success, msg ->
+                if (success) {
+                    val uid = repo.currentUid() ?: ""
+                    _uiState.value = _uiState.value.copy(
+                        id = uid,
+                        isLoggedIn = true,
+                        isLoading = false
+                    )
                 } else {
-                    _uiState.value.copy(isLoading = false, errorMessage = message ?: "Error al iniciar sesión.")
+                    _uiState.value = _uiState.value.copy(isLoading = false, errorMessage = msg)
                 }
             }
+
         }
     }
 
@@ -78,21 +85,38 @@ class UserViewModel(
         viewModelScope.launch {
             repo.registerEmail(email, password) { success, message ->
                 if (success) {
-                    repo.addUserManager(email, password, username, address) { userSuccess, userMsg ->
-                        _uiState.value = if (userSuccess) {
-                            _uiState.value.copy(isLoggedIn = true, isLoading = false)
+                    val uid = repo.currentUid() ?: return@registerEmail
+                    repo.addUserManager(
+                        uid,
+                        email,
+                        username,
+                        address
+                    ) { userSuccess, userMsg ->  // ✅ CORRECTO
+                        if (userSuccess) {
+                            _uiState.value = _uiState.value.copy(
+                                id = uid,
+                                isLoggedIn = true,
+                                isLoading = false
+                            )
                         } else {
-                            _uiState.value.copy(isLoading = false, errorMessage = userMsg ?: "Error al guardar datos de usuario.")
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false,
+                                errorMessage = userMsg ?: "Error al guardar datos del usuario."
+                            )
                         }
                     }
                 } else {
-                    _uiState.value = _uiState.value.copy(isLoading = false, errorMessage = message ?: "Error al registrar usuario.")
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = message ?: "Error al registrar usuario."
+                    )
                 }
             }
         }
     }
 
-    fun resetError() {
-        _uiState.value = _uiState.value.copy(errorMessage = null)
-    }
-}
+            fun resetError() {
+                _uiState.value = _uiState.value.copy(errorMessage = null)
+            }
+        }
+
