@@ -41,66 +41,62 @@ fun BottomNavBar(
     navController: NavHostController,
     cartViewModel: CartViewModel,
     isLoggedIn: Boolean,
-    isLandscape: Boolean
+    isLandscape: Boolean // puedes quitarlo si ya no lo necesitas
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val cartItems = cartViewModel.items
 
     NavigationBar(
-        modifier = if (isLandscape) Modifier.height(60.dp) else Modifier.height(120.dp),
-        containerColor = MaterialTheme.colorScheme.primary
-    )
-    {
+        // Fondo y contenido tomados de surface → contraste bueno con onSurface
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
         val navItems = listOf(
-            NavItem("info", Icons.Default.Info, "Info"),
-            NavItem("productos", Icons.Default.Menu, "Productos"),
-            NavItem("cesta", Icons.Default.ShoppingCart, "Cesta", requiresLogin = true),
-            NavItem("compra", Icons.Default.Search, "Compra", requiresLogin = true)
+            NavItem("info", Icons.Filled.Info, "Info"),
+            NavItem("productos", Icons.Filled.Menu, "Productos"),
+            NavItem("cesta", Icons.Filled.ShoppingCart, "Cesta", requiresLogin = true),
+            NavItem("compra", Icons.Filled.Search, "Compra", requiresLogin = true)
         )
+
         navItems.forEach { item ->
+            val selected = currentRoute == item.route
             val isCart = item.route == "cesta"
 
             NavigationBarItem(
                 icon = {
-                    if (isCart) {
-                        // ✅ Icono con badge (por ejemplo, número 1)
+                    if (isCart && cartItems.isNotEmpty()) {
                         BadgedBox(
                             badge = {
                                 Badge(
-                                    containerColor = Color.Red, // o MaterialTheme.colorScheme.error
-                                    contentColor = Color.White
-                                ) {
-                                    Text(cartItems.size.toString())
-                                }
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.onError
+                                ) { Text(cartItems.size.toString()) }
                             }
-                        ) {
-                            Icon(item.icon, contentDescription = item.label)
-                        }
+                        ) { Icon(item.icon, contentDescription = item.label) }
                     } else {
-                        // Icono normal para los demás
                         Icon(item.icon, contentDescription = item.label)
                     }
                 },
-                label = { Text(item.label, fontSize = 10.sp) },
-                selected = currentRoute == item.route,
+                label = { Text(item.label, fontSize = 11.sp) },
+                selected = selected,
                 onClick = {
-                    if (!item.requiresLogin || isLoggedIn) {
+                    if ((!item.requiresLogin || isLoggedIn) && currentRoute != item.route) {
                         navController.navigate(item.route) {
                             launchSingleTop = true
                             restoreState = true
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
-                            }
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
                         }
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primaryContainer,
-                    selectedTextColor = MaterialTheme.colorScheme.onSecondary,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSecondary,
-                    unselectedTextColor = MaterialTheme.colorScheme.primary,
-                    indicatorColor = Color.Transparent
+                    // Icono/label cuando está seleccionado
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                    // Icono/label cuando NO está seleccionado
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    // Color del “pill”/indicador bajo el item seleccionado
+                    indicatorColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             )
         }

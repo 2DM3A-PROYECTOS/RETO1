@@ -279,7 +279,10 @@ fun ActionButtons(
                 modifier = Modifier
                     .weight(0.4f)
                     .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = colors.primaryContainer)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
                 Text(
                     text = if (addedToCart) "Añadido" else "A la cesta",
@@ -296,7 +299,10 @@ fun ActionButtons(
                 modifier = Modifier
                     .weight(0.4f)
                     .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = colors.secondary)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
                 Text(
                     text = "Comprar",
@@ -314,7 +320,10 @@ fun ActionButtons(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = colors.primaryContainer)
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         ) {
             Text(
                 text = "Ir al carrito",

@@ -64,10 +64,10 @@ import com.example.reto1_dam_2025_26.viewmodels.UserViewModel
 import java.text.NumberFormat
 import java.util.Locale
 import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.reto1_dam_2025_26.data.model.OrderItem
 import com.example.reto1_dam_2025_26.viewmodels.CartItem
 import com.example.reto1_dam_2025_26.viewmodels.OrderViewModel
-
 /**
  * Formatea un valor numérico como moneda en formato español (€).
  *
@@ -103,9 +103,10 @@ private fun SectionTitle(text: String) {
 @Composable
 private fun KeyValueRow(label: String, value: String, emphasize: Boolean = false) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, color = MaterialTheme.colorScheme.secondary)
+        Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(
             value,
+            color = if (emphasize) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             fontWeight = if (emphasize) FontWeight.SemiBold else FontWeight.Normal
         )
     }
@@ -134,18 +135,22 @@ private fun DeliveryCard(address: String, window: String) {
                 Icon(
                     imageVector = Icons.Outlined.LocalShipping,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.secondary
                 )
                 Spacer(Modifier.width(8.dp))
                 SectionTitle("Entrega")
             }
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(imageVector = Icons.Outlined.Home, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Outlined.Home,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary
+                )
                 Spacer(Modifier.width(8.dp))
                 Column {
-                    Text(address)
-                    Text(window, color = MaterialTheme.colorScheme.secondary, fontSize = 12.sp)
+                    Text(address, color = MaterialTheme.colorScheme.onSurface)
+                    Text(window, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                 }
             }
         }
@@ -173,13 +178,13 @@ private fun PaymentCard(method: String) {
             Icon(
                 imageVector = Icons.Outlined.CreditCard,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.secondary
             )
             Spacer(Modifier.width(8.dp))
             Column {
                 SectionTitle("Pago")
                 Spacer(Modifier.height(4.dp))
-                Text(method)
+                Text(method, color = MaterialTheme.colorScheme.onSurface)
             }
         }
     }
@@ -213,25 +218,38 @@ fun OrderScreen(
     val subtotal: Double = cartViewModel.total()
     val ivaAmount: Double = subtotal * 0.21
     val total: Double = subtotal + ivaAmount
-    val userState = userViewModel.uiState.collectAsState().value
+    // ANTES
+    //val userState = userViewModel.uiState.collectAsState().value
+// DESPUÉS (mejor con lifecycle)
+    val userState = userViewModel.uiState.collectAsStateWithLifecycle().value
+    val address = userState.address?.takeIf { it.isNotBlank() }
+    val hasAddress = address != null
 
     var showConfirm by rememberSaveable { mutableStateOf(false) }
 
-    Surface(Modifier.fillMaxSize()) {
+    Surface(
+        Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
         Column {
             // Top bar simple
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(horizontal = 8.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Atrás")
+                    Icon(
+                        Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = "Atrás",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
                 }
                 Text(
                     "Confirmación de pedido",
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(8.dp)
                 )
@@ -246,79 +264,116 @@ fun OrderScreen(
                 item { Spacer(Modifier.height(8.dp)) }
 
                 // Items
-                item {
-                    SectionTitle("Tu pedido")
-                }
+                item { SectionTitle("Tu pedido") }
+
                 items(cartItems.size) { index ->
                     val item = cartItems[index]
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        // Imagen del producto
-                        AsyncImage(
-                            model = item.product.imageUrl,
-                            contentDescription = item.product.name,
-                            contentScale = ContentScale.Crop,
+                        Row(
                             modifier = Modifier
-                                .size(60.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                        )
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Imagen del producto
+                            AsyncImage(
+                                model = item.product.imageUrl,
+                                contentDescription = item.product.name,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                            )
 
-                        Spacer(Modifier.width(12.dp))
+                            Spacer(Modifier.width(12.dp))
 
-                        Column(Modifier.weight(1f)) {
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    item.product.name,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+
+                                Text(
+                                    item.product.description,
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+                                Spacer(Modifier.height(4.dp))
+
+                                Text(
+                                    "x${item.qty} • ${money(item.product.price)} / ud.",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            Spacer(Modifier.width(12.dp))
 
                             Text(
-                                item.product.name,
-                                fontSize = 14.sp,
+                                text = money(item.product.price * item.qty),
                                 fontWeight = FontWeight.SemiBold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-
-                            Text(
-                                item.product.description,
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.secondary,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-
-                            Spacer(Modifier.height(4.dp))
-
-                            Text(
-                                "x${item.qty.toString()} • ${money(item.product.price)} / ud.",
-                                fontSize = 12.sp
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
-
-                        Spacer(Modifier.width(12.dp))
-
-                        Text(
-                            text = String.format("%.2f €", item.product.price * item.qty),
-                            fontWeight = FontWeight.SemiBold
-                        )
                     }
                 }
+
+                // Entrega
                 // Entrega
                 item {
-                    DeliveryCard(userState.address, "Hoy, 18:00 - 20:00")
+                    if (hasAddress) {
+                        DeliveryCard(address = address!!, window = "Hoy, 18:00 - 20:00")
+                    } else {
+                        // Placeholder mientras llega la dirección (evita pantalla “vacía”)
+                        ElevatedCard(
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ),
+                            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp)
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.LocalShipping,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    SectionTitle("Entrega")
+                                }
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    "Cargando dirección...",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
                 }
 
                 // Pago
-                item {
-                    PaymentCard("Visa **** 1234")
-                }
+                item { PaymentCard("Visa **** 1234") }
 
                 // Totales
                 item {
                     Card(
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
                         ),
                         shape = RoundedCornerShape(16.dp)
                     ) {
@@ -327,7 +382,10 @@ fun OrderScreen(
                             Spacer(Modifier.height(8.dp))
                             KeyValueRow("Subtotal", money(subtotal))
                             KeyValueRow("IVA (21%)", money(ivaAmount))
-                            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                            HorizontalDivider(
+                                Modifier.padding(vertical = 10.dp),
+                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                            )
                             KeyValueRow("Total", money(total), emphasize = true)
                         }
                     }
@@ -337,38 +395,35 @@ fun OrderScreen(
                 item {
                     Column(Modifier.fillMaxWidth()) {
                         Button(
-                            onClick = {
-                                val orderItems = createOrderItemList(cartItems)
-                                //orderViewModel.createOrder("7h8CC1lK8AfL8uE5DBEHZkNmI833", orderItems, "CARD", "C/ Gran Via, 22")
-                                orderViewModel.createOrder(
-                                    userState.id,
-                                 orderItems,
-                                 "CARD",
-                                    userState.address)
-                                // crear lista de ordenes para el usuario en base de datos
-                                cartViewModel.clear()
-                                navController.navigate("gracias") {
-                                    popUpTo("compra") { inclusive = true }
-                                    launchSingleTop = true }},
+                            onClick = { showConfirm = true }, // diseño + confirmación
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 4.dp),
-                            shape = RoundedCornerShape(50),
+                            shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondary
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
                             )
                         ) {
-                            Text("Confirmar pedido")
+                            Text("Confirmar pedido", style = MaterialTheme.typography.titleMedium)
                         }
-                        OutlinedButton(
-                            onClick = { navController.navigate("cesta") {
-                                popUpTo("compra") { inclusive = true }
-                                launchSingleTop = true
-                            } },
+
+                        Button(
+                            onClick = {
+                                navController.navigate("cesta") {
+                                    popUpTo("compra") { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 8.dp),
-                            shape = RoundedCornerShape(50)
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+
                         ) {
                             Text("Editar carrito")
                         }
@@ -385,9 +440,9 @@ fun OrderScreen(
                 title = { Text("¿Confirmar compra?") },
                 text = {
                     Column {
-                        Text("Total a pagar: ${money(total)}")
+                        Text("Total a pagar: ${money(total)}", color = MaterialTheme.colorScheme.onSurface)
                         Spacer(Modifier.height(4.dp))
-                        Text("Se aplicará el método de pago: Visa.")
+                        Text("Se aplicará el método de pago: Visa.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 },
                 confirmButton = {
@@ -395,16 +450,24 @@ fun OrderScreen(
                         onClick = {
                             showConfirm = false
                             // Aquí podrías disparar un ViewModel.placeOrder()
-                            navController.navigate("pedido_exitoso")
+                            val orderItems = createOrderItemList(cartItems)
+                            orderViewModel.createOrder(
+                                userState.id,
+                                orderItems,
+                                "CARD",
+                                userState.address
+                            )
+                            // crear lista de ordenes para el usuario en base de datos
+                            cartViewModel.clear()
+                            navController.navigate("gracias") {
+                                popUpTo("compra") { inclusive = true }
+                                launchSingleTop = true
+                            }
                         }
-                    ) {
-                        Text("Confirmar")
-                    }
+                    ) { Text("Confirmar") }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showConfirm = false }) {
-                        Text("Cancelar")
-                    }
+                    TextButton(onClick = { showConfirm = false }) { Text("Cancelar") }
                 }
             )
         }

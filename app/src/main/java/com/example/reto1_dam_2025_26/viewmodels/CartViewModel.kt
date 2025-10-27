@@ -1,23 +1,23 @@
 /**
- * ViewModel para gestionar la lógica del carrito de compras.
+ * ViewModel para gestionar la lógica del carrito de compras con persistencia en DataStore.
  *
- * Mantiene una lista observable de items en el carrito y proporciona operaciones para modificarla.
+ * Mantiene una lista observable de items y la guarda automáticamente en caché.
  *
  * @file CartViewModel.kt
  */
 package com.example.reto1_dam_2025_26.viewmodels
 
+import android.app.Application
 import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.reto1_dam_2025_26.data.CartDataStore
 import com.example.reto1_dam_2025_26.data.model.Product
+import kotlinx.coroutines.launch
 
 /**
  * Representa un ítem dentro del carrito de compras.
- *
- * @property product Producto agregado.
- * @property qty Cantidad del producto en el carrito.
  */
-// Clase para los elementos del carrito
 data class CartItem(
     val product: Product,
     val qty: Int = 1
@@ -25,14 +25,23 @@ data class CartItem(
 
 /**
  * ViewModel que gestiona los elementos del carrito y sus cantidades.
+ * Usa DataStore para guardar los datos de forma persistente.
  */
-class CartViewModel : ViewModel() {
+class CartViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val dataStore = CartDataStore(application)
     private val _items = mutableStateListOf<CartItem>()
-    /**
-     * Lista inmutable de ítems actuales en el carrito.
-     */
     val items: List<CartItem> get() = _items
+
+    init {
+        // Al iniciar, cargamos el carrito guardado en DataStore
+        viewModelScope.launch {
+            dataStore.getCart().collect { savedItems ->
+                _items.clear()
+                _items.addAll(savedItems)
+            }
+        }
+    }
 
     /**
      * Agrega un producto al carrito.
@@ -49,6 +58,7 @@ class CartViewModel : ViewModel() {
         } else {
             _items.add(CartItem(product))
         }
+        saveToCache()
     }
 
     /**
@@ -61,6 +71,7 @@ class CartViewModel : ViewModel() {
         if (index != -1) {
             val current = _items[index]
             _items[index] = current.copy(qty = current.qty + 1)
+            saveToCache()
         }
     }
 
@@ -80,13 +91,17 @@ class CartViewModel : ViewModel() {
             } else {
                 _items.removeAt(index)
             }
+            saveToCache()
         }
     }
 
     /**
      * Limpia todos los ítems del carrito.
      */
-    fun clear() = _items.clear()
+    fun clear() {
+        _items.clear()
+        viewModelScope.launch { dataStore.clearCart() }
+    }
 
     /**
      * Calcula el total acumulado del carrito (precio * cantidad de cada producto).
@@ -94,4 +109,23 @@ class CartViewModel : ViewModel() {
      * @return Total en formato Double.
      */
     fun total(): Double = _items.sumOf { it.product.price * it.qty }
+
+    /**
+     * Guarda el estado actual del carrito en DataStore.
+     *
+     * Convierte la lista de productos [_items] a formato JSON y la almacena
+     * de forma persistente mediante la clase [CartDataStore].
+     * Esta operación se ejecuta dentro de una corrutina del [viewModelScope],
+     * garantizando que se realice en segundo plano sin bloquear la interfaz.
+     *
+     * Se invoca automáticamente cada vez que se añade, elimina o modifica
+     * la cantidad de un producto en el carrito.
+     *
+     * @see com.example.reto1_dam_2025_26.data.CartDataStore.saveCart
+     */
+    private fun saveToCache() {
+        viewModelScope.launch {
+            dataStore.saveCart(_items)
+        }
+    }
 }

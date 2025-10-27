@@ -70,6 +70,13 @@ git clone https://github.com/2DM3A-PROYECTOS/RETO1.git
 > _(Pronto)_
 
 ---
+
+##  Informe técnico
+Enlace al informe técnico del proyecto creado con Dokka:
+https://2dm3a-proyectos.github.io/RETO1/
+
+---
+
 ### 🌟 Créditos
 Proyecto desarrollado en el marco del módulo ** MercadoRiberaGo — 2º DAM (2025)**.  
 Desarrolladores: Nikolai, Anthony, Lucas, Artem

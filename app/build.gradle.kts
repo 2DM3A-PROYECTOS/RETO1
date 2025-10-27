@@ -77,6 +77,9 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.7.0")//bibleoteca para poder usar los enlaces de los imagenes
 
+    // DataStore (para guardar datos de forma persistente)
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 
-
+    // Gson (para convertir tus objetos del carrito a JSON y viceversa)
+    implementation("com.google.code.gson:gson:2.10.1")
 }
