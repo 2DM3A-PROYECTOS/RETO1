@@ -10,10 +10,10 @@ import androidx.compose.runtime.Composable
 private val LightColorScheme = lightColorScheme(
     primary = Blanco,
     onPrimary = Blanco,
-    primaryContainer = RojoMercado,
+    primaryContainer = Blanco,
     onPrimaryContainer = NegroSuave,
 
-    secondary = Salmon,
+    secondary = RojoMercado,
     onSecondary = NegroSuave,                 // texto oscuro sobre botón/acento claro
     secondaryContainer = VarianteSuperficieClara,
     onSecondaryContainer = NegroSuave,

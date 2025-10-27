@@ -14,7 +14,7 @@ val Gris        = Color(0xFF8A8686)
 // Superficies (mejor lectura y jerarquía)
 val FondoClaro            = Color(0xFFF9F6F5) // background (ligeramente cálido, menos “duro” que #FFF)
 val SuperficieClara       = Blanco           // surface principal en modo claro
-val VarianteSuperficieClara = Color(0xFFF0E7E5) // divisores, chips, cards sutiles
+val VarianteSuperficieClara = Color(0xFFF09D90) // divisores, chips, cards sutiles
 
 val SuperficieOscura        = Color(0xFF1F1B1A) // surface en modo oscuro
 val VarianteSuperficieOscura = Color(0xFF2B2321) // surfaceVariant en oscuro

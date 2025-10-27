@@ -31,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -40,6 +41,7 @@ import com.example.reto1_dam_2025_26.userInt.components.ProductPopup
 import java.text.NumberFormat
 import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.reto1_dam_2025_26.viewmodels.ProductsViewModel
 import com.example.reto1_dam_2025_26.viewmodels.CartViewModel
 
@@ -297,7 +299,7 @@ private fun ProductCard(
             Text(
                 text = money(product.price),
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth()
             )
         }
