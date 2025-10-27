@@ -64,10 +64,10 @@ import com.example.reto1_dam_2025_26.viewmodels.UserViewModel
 import java.text.NumberFormat
 import java.util.Locale
 import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.reto1_dam_2025_26.data.model.OrderItem
 import com.example.reto1_dam_2025_26.viewmodels.CartItem
 import com.example.reto1_dam_2025_26.viewmodels.OrderViewModel
-
 /**
  * Formatea un valor numérico como moneda en formato español (€).
  *
@@ -135,7 +135,7 @@ private fun DeliveryCard(address: String, window: String) {
                 Icon(
                     imageVector = Icons.Outlined.LocalShipping,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.secondary
                 )
                 Spacer(Modifier.width(8.dp))
                 SectionTitle("Entrega")
@@ -145,7 +145,7 @@ private fun DeliveryCard(address: String, window: String) {
                 Icon(
                     imageVector = Icons.Outlined.Home,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.secondary
                 )
                 Spacer(Modifier.width(8.dp))
                 Column {
@@ -178,7 +178,7 @@ private fun PaymentCard(method: String) {
             Icon(
                 imageVector = Icons.Outlined.CreditCard,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.secondary
             )
             Spacer(Modifier.width(8.dp))
             Column {
@@ -218,7 +218,12 @@ fun OrderScreen(
     val subtotal: Double = cartViewModel.total()
     val ivaAmount: Double = subtotal * 0.21
     val total: Double = subtotal + ivaAmount
-    val userState = userViewModel.uiState.collectAsState().value
+    // ANTES
+    //val userState = userViewModel.uiState.collectAsState().value
+// DESPUÉS (mejor con lifecycle)
+    val userState = userViewModel.uiState.collectAsStateWithLifecycle().value
+    val address = userState.address?.takeIf { it.isNotBlank() }
+    val hasAddress = address != null
 
     var showConfirm by rememberSaveable { mutableStateOf(false) }
 
@@ -329,7 +334,37 @@ fun OrderScreen(
                 }
 
                 // Entrega
-                item { DeliveryCard(userState.address, "Hoy, 18:00 - 20:00") }
+                // Entrega
+                item {
+                    if (hasAddress) {
+                        DeliveryCard(address = address!!, window = "Hoy, 18:00 - 20:00")
+                    } else {
+                        // Placeholder mientras llega la dirección (evita pantalla “vacía”)
+                        ElevatedCard(
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ),
+                            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp)
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.LocalShipping,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    SectionTitle("Entrega")
+                                }
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    "Cargando dirección...",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
 
                 // Pago
                 item { PaymentCard("Visa **** 1234") }

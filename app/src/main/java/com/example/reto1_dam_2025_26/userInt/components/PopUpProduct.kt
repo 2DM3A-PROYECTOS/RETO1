@@ -288,6 +288,7 @@ fun ActionButtons(
                     text = if (addedToCart) "Añadido" else "A la cesta",
                     style = typography.labelLarge.copy(
                         color = colors.onPrimaryContainer,
+                        fontSize = 10.sp
                         )
                 )
             }
@@ -307,6 +308,7 @@ fun ActionButtons(
                     text = "Comprar",
                     style = typography.labelLarge.copy(
                         color = colors.onSecondary,
+                        fontSize = 10.sp
                     )
                 )
             }
@@ -327,6 +329,7 @@ fun ActionButtons(
                 text = "Ir al carrito",
                 style = typography.labelLarge.copy(
                     color = colors.onPrimaryContainer,
+                    fontSize = 10.sp
                 )
             )
         }
