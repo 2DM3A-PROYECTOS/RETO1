@@ -7,7 +7,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
 fun enviarCorreoLambda(toEmail: String = "alumno@example.com") {
-    val url = "https://cu4bxatvf5x3fdbwbayfw2h6pi0ivour.lambda-url.us-east-1.on.aws/"
+    val url = "https://oeqwgxpckvlnl3u3vvrfai4t6a0pelmp.lambda-url.us-east-1.on.aws/"
     val token = "mF8Xk9u2l7OaB5FZqvH2j1sW9cR8yTzP6aQvB0xE3fI"
 
     val json = JSONObject().apply {
