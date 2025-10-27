@@ -67,12 +67,7 @@ git clone https://github.com/2DM3A-PROYECTOS/RETO1.git
 ---
 
 ## 📸 Capturas de pantalla
-
-<div align="center">
-  <img src="https://i.ibb.co/W4hmbTY0/vaciar-cesta.gif" alt="" width="250"/>
-  <img src="https://i.ibb.co/5WTDJbx5/register.gif" alt="" width="250"/>
-  <img src="https://i.ibb.co/wh85SYsf/seleccion-y-compra.gif" alt="" width="250"/>
-</div>
+(PRONTO)
 
 ---
 
