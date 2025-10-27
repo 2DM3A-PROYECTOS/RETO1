@@ -3,12 +3,14 @@
 ![Estado del Proyecto](https://img.shields.io/badge/estado-en%20desarrollo-orange?logo=github)
 ![Tamaño del Repositorio](https://img.shields.io/github/repo-size/2DM3A-PROYECTOS/RETO1)
 ![Commits en GitHub](https://badgen.net/github/commits/2DM3A-PROYECTOS/RETO1)
+![Documentación de Dokka](https://img.shields.io/badge/Dokka-Kotlin%20Docs-blue?logo=kotlin&logoColor=white)
 <br>
 [![Android](https://img.shields.io/badge/Android-Studio-green?logo=android)](https://developer.android.com/studio)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue?logo=kotlin)](https://kotlinlang.org/)
 [![Firebase](https://img.shields.io/badge/Firebase-Backend-orange?logo=firebase)](https://firebase.google.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](#-licencia)
 [![Build](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/2DM3A-PROYECTOS/RETO1/actions)
+
 
 # Proyecto RETO1 - DAM 2025/26
 
@@ -19,7 +21,32 @@
 **App MercadoRiberaGo** es una aplicación móvil desarrollada en **Android Studio con Kotlin** que permite a los usuarios explorar los productos de un mercado local por categorías, crear una cuenta, añadir productos al carrito y realizar pedidos.  
 Este proyecto fue creado como parte del **RETO 1 del ciclo DAM (Desarrollo de Aplicaciones Multiplataforma)**.
 
+## 📚 Documentación del Proyecto
+
+La documentación técnica del código ha sido generada con **[Dokka](https://kotlinlang.org/docs/dokka-introduction.html)**  
+y está disponible en el siguiente enlace:
+
+👉 **[Ver documentación Dokka](https://2dm3a-proyectos.github.io/RETO1/)**
+
+## 📄 Informes del Proyecto
+
+En esta carpeta se incluyen todos los informes técnicos y académicos asociados al desarrollo del proyecto:
+
+
+### 🧩 Lista de Informes
+
+- 🎨 **Presentación APP** → [Presentación_APP.pdf](./documentos/Presentación%20Mercado%20La%20Ribera%20GO.pdf)
+- 🧠 **Informe de Ciberseguridad** → [Informe_Ciberseguridad.pdf](./documentos/Informe_Ciberseguridad.pdf)
+- ⚙️ **Informe de Rendimiento** → [Informe_Rendimiento.pdf](./documentos/informe_de_rendimiento_de_app.pdf)
+- 💼 **Informe ERP** → [Informe_ERP.pdf](./documentos/Informe_ERP.pdf)
+
+- 🚀 **Informe Correo AWS Lambda** → [Informe_AWS_Lambda.pdf](./documentos/Informe_Correo_AWS_Lambda.pdf)
+
 ---
+
+> Todos los informes están disponibles en formato PDF dentro de la carpeta [`/documentos`](./documentos/).
+📁 **[Ver carpeta de informes](./documentos/)**
+
 
 ## 🚀 Características principales
 - 🔐 **Autenticación de usuarios** con Firebase Auth (registro y login).
