@@ -37,7 +37,7 @@ import com.example.reto1_dam_2025_26.userInt.screens.OrderScreen
 import com.example.reto1_dam_2025_26.userInt.screens.ProductsScreen
 import com.example.reto1_dam_2025_26.userInt.screens.ShoppingCartScreen
 import com.example.reto1_dam_2025_26.userInt.screens.Thanks
-
+import com.example.reto1_dam_2025_26.ui.theme.*
 /**
  * Composable principal que gestiona la navegación y la estructura general
  * de la aplicación utilizando un [Scaffold] con barra superior y barra inferior.
@@ -77,8 +77,8 @@ fun GestorVentanas() {
             TopAppBar(
                 modifier = if (isLandscape) Modifier.height(70.dp) else Modifier,
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = RojoMercado,
+                    titleContentColor = MaterialTheme.colorScheme.surface,
                 ),
                 title = {
                     Image(
@@ -99,7 +99,7 @@ fun GestorVentanas() {
                     if (actionText.isNotEmpty()) {
                         Text(
                             text = actionText,
-                            color = MaterialTheme.colorScheme.onSecondary,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(end = 16.dp),
                             style = MaterialTheme.typography.bodyMedium
                         )

@@ -13,39 +13,46 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.Crossfade
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import com.example.reto1_dam_2025_26.ui.theme.Reto1_DAM_202526Theme
 import com.example.reto1_dam_2025_26.userInt.components.GestorVentanas
 import com.example.reto1_dam_2025_26.userInt.screens.AuthScreen
-
+import com.example.reto1_dam_2025_26.userInt.screens.PreloaderScreen
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
             Reto1_DAM_202526Theme(dynamicColor = false) {
                 Surface {
-                    //Es_Una_Prueba()
-
                     var loggedIn by remember { mutableStateOf(false) }
+                    var showSplash by rememberSaveable { mutableStateOf(true) }
 
-                    if (loggedIn) {
-                        GestorVentanas()
-                    } else {
-                        AuthScreen(
-                            onLoggedIn = { loggedIn = true }
-                        )
+                    // Simula carga inicial
+                    LaunchedEffect(Unit) {
+                        delay(3200) // Cambia duración si quieres
+                        showSplash = false
+                    }
+
+                    // Transición entre Splash y App
+                    Crossfade(targetState = showSplash) { splash ->
+                        if (splash) {
+                            PreloaderScreen()
+                        } else {
+                            if (loggedIn) {
+                                GestorVentanas()
+                            } else {
+                                AuthScreen(onLoggedIn = { loggedIn = true })
+                            }
+                        }
                     }
                 }
             }
         }
-
-
     }
 }
